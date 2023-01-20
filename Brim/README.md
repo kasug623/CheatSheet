@@ -12,7 +12,7 @@ C:\Users\user\AppData\Local\Programs\brim\resources\app.asar.unpacked\zdeps\suri
 ```
 
 # query
-zqというスクリプト言語。jqの親戚みたいなものっぽい。
+zqというスクリプト言語。jqの親戚みたいなものっぽい。  
 [https://zed.brimdata.io/docs/commands/zq](https://zed.brimdata.io/docs/commands/zq)  
 [https://github.com/brimdata/zed/blob/v1.1.0/docs/language/overview.md](https://github.com/brimdata/zed/blob/v1.1.0/docs/language/overview.md)  
 
