@@ -8,7 +8,7 @@ suricata.rulesを置き換える際は、以下のパスの中のファイルを
 ## Suricata の rule の場所
 suricata.rulesを置き換える際は、以下のパスの中のファイルを入れ替えれば良い。
 ```
-C:\Users\SANSDFIR\AppData\Local\Programs\brim\resources\app.asar.unpacked\zdeps\suricata\var\lib\suricata\rules
+C:\Users\user\AppData\Local\Programs\brim\resources\app.asar.unpacked\zdeps\suricata\var\lib\suricata\rules
 ```
 
 # query
