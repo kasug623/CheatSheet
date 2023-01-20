@@ -30,14 +30,14 @@ ssh-keygen -t rsa -b 4096 -c "#8"
 
 ## ssh公開鍵のコピー
 ```
-ssh-copy-id root@172.17.0.181
+ssh-copy-id root@XXX.XXX.XXX.XXX
 ```
 
 ## ssh configファイルの作成
 ```
 cat .ssh/config 
 host jump
-hostname 172.17.0.181
+hostname XXX.XXX.XXX.XXX
 user root
 port 22
 identityfile ~/.ssh/id_rsa
