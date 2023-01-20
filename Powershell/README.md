@@ -9,7 +9,7 @@ VMwarenの.vmdkのファイル名変更
 ```
 for($i=1; $i -lt 17; $i++){
 	$j = $i.ToString("00")
-	$filename = "M4_test_Windows Server 2019-s0" + $j + ".vmdk"
+	$filename = "test_Windows Server 2019-s0" + $j + ".vmdk"
 	$newname = "PJ_kerberos_OS_windows_server_2019-s0" + $j + ".vmdk"
 	Rename-Item -Path $filename -NewName $newname
 }
