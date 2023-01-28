@@ -22,3 +22,14 @@ sudo docker-compose up -d
 docker-compose down --rmi all --volumes --remove-orphans
 ```
 
+# how to run several programs on "docker start"
+startup.shを用意して、それを一つ実行する中で、複数プログラムを呼ぶ。
+## startup.sh 
+```
+#!/bin/bash
+
+for script in `ls -1 /root/start-scripts/`
+do
+    /root/start-scripts/$script 
+done
+```
