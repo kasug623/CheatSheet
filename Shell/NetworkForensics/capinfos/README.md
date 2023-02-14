@@ -1,4 +1,4 @@
 ```
 $ capinfos -Hae ./foo.pcap
-$ capinfos -Mcsd ./doo.pcap
+$ capinfos -Mcsd ./foo.pcap
 ```
