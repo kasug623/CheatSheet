@@ -7,3 +7,8 @@ $ tshark -n -C no_desegment_tcp -r ./foo.pcap -q -z io,phs
 $ tshark -n -C no_desegment_tcp -r ./foo.pcap -T fields -e frame.time_delta_displayed -e frame.time -e http.request.uri -Y 'http.user_agent contains "XXX" and http.request.uri contains "YYY"'
 $ tshark -n -C no_desegment_tcp -r ./foo.pcap -T fields -e http.host -Y 'http.cookie contains "utm"' | sort | uniq -c | sort -nr
 ```
+
+# export
+```
+$ tshark --nq -r ./foo.pcap --export-objects smb,./stashrk_objects/
+```
