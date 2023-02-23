@@ -10,3 +10,4 @@ $ zcat ./foo.gz | jq -r 'select(.rcode_name != "XXX") | .yyy' | sort | uniq -c |
 $ zcat ./foo.gz | jq -r 'select(.rcode_name != "XXX") | {yyy, zzz}' | sort | uniq -c | sort -nr
 $ zcat ./foo.gz | jq -cr 'select((."XXX.YYY" == "AAA" or ."XXX.ZZZ" == "BBB") and .WWW == "CCC") | { DDD: .DDD | todate, "PPP.QQQ", RRR}'
 ```
+
