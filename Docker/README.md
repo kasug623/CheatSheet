@@ -27,6 +27,12 @@ Technically, `docker compose` and `docker-compose` are different.
 ```
 $ sudo docker compose up -d
 ```
+## stop a container and remove the image
+```
+$ sudo docker compose stop hogeContainer
+$ sudo docker compose rm hogeContaner
+$ sudo docker rmi hogeImage
+```
 
 ##  Balus
 This command stops containers and delete the images.  
