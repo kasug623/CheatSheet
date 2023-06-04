@@ -1,4 +1,4 @@
-# TIPS: check installed package
+# check installed packages
 ```bash
 apt list --installed | grep "hoge"
 ```
