@@ -1,37 +1,37 @@
-# キーボード設定
-## USキーボードを日本語キーボードに変える
-### GUIを使っているときは仮想エミュレート端末のキーボード設定を変える必要がある
-#### localctlでは変わらない
+# Keyboard Settings
+## Changing a US Keyboard to a Japanese Keyboard
+When using a GUI, you need to change the keyboard settings of the virtual emulated terminal.  
+### localectl does not work
 ```
-localectl set-keymap jp106
+$ localectl set-keymap jp106
 ```
-![参考コンソール画像](/CentOS/doc/localectl.png)
+![image](/CentOS/doc/localectl.png)
 
-# setxkbmapで変える
+### Change with `setxkbmap`
 ```
-setxkbmap -layout jp
+$ setxkbmap -layout jp
+## or
+$ setxkbmap jp -model jp106
 ```
-or
-```
-setxkbmap jp -model jp106
-```
-![参考コンソール画像](/CentOS/doc/setxkbmap1.png)
+![image](/CentOS/doc/setxkbmap1.png)
 
-- shutdownやrebootとすると、元に戻るので、永続化させたい場合は、.bashrc等に記載する
-![参考コンソール画像](/CentOS/doc/setxkbmap2.png)
-![参考コンソール画像](/CentOS/doc/setxkbmap3.png)
+If you perform shutdown or reboot, it will revert to the original settings, so if you want to make it permanent, add it to .bashrc or similar.
+![image](/CentOS/doc/setxkbmap2.png)
+![image](/CentOS/doc/setxkbmap3.png)
 
-# フォルダ名が日本語なのを英語に変えたい at GUI
+# Changing Folder Names from Japanese to English in the GUI
 ```
 LANG=C xdg-user-dirs-gtk-update
 ```
 [https://toshio-web.com/linux-home-rename?amp=1](https://toshio-web.com/linux-home-rename?amp=1)
 
-
-## ERROR
+# Trouble Shooting
+## Update Error
+```
 sh-4.4# yum update
 CentOS Linux 8 - AppStream131
 Error: Failed to download metadata for repo 'appstream': Cannot prepare internal mirrorlist: No URLs in mirrorlist
+```
 ```
 $ sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
 $ sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*

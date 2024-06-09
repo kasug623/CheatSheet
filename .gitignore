@@ -8,6 +8,8 @@
 # general white list
 !.gitignore
 !Brim/README.md
+!CentOS/README.md
+!CentOS/doc/*.png
 !Shell/PenetrationTest/README.md
 
 # indivisual white list
