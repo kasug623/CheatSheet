@@ -231,3 +231,14 @@ Demo License expired, contact info@tzworks.net to purchase a commercial license.
 $
 $ alias tac='/bin/tac'
 ```
+
+# zsh
+## for cutomize prompt design
+add this.
+```
+# .zshrc
+precmd_functions=""
+```
+
+
+

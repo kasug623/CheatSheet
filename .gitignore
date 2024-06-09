@@ -1,0 +1,14 @@
+# all deny
+*
+*/
+
+# white list for directory
+!*/
+
+# general white list
+!.gitignore
+!Shell/PenetrationTest/README.md
+
+# indivisual white list
+
+# intended black list

