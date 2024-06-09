@@ -1,3 +1,17 @@
+# several version of cmd.exe
+64bit-cmd.exe
+```
+C:¥Windows¥System32¥cmd.exe
+```
+32bit-cmd.exe
+```
+C:¥Windows¥Syswow64¥cmd.exe
+```
+call 64bit-cmd.exe from 32bit-cmd.exe
+```
+C:¥Windows¥sysnative¥cmd.exe
+```
+
 # folder manupulation
 ## cd ~/
 ```console
@@ -16,13 +30,11 @@ use grep and filter display
 $ wmic process where name="cmd.exe" get ProcessID, ExecutablePath
 ```
 
-
-
 # Forensics Technique
 ## Zimmerman Tool
 ### EtxECmd.exe
 ```console
-$ EvtxECmd.exe -f Security.evtx --csv G:\my\60_Phishy --csvf security.csv
+$ EvtxECmd.exe -f Security.evtx --csv C:\User\user\Desktop --csvf security.csv
 ```
 
 # Malware Analysys

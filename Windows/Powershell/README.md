@@ -7,7 +7,8 @@ run with admin.
 PS > netsh interface portproxy show all
 PS > netsh interface portproxy delete v4tov4 listenaddress="XXX.XXX.XXX.XXX" listenport="443"
 ```
-rename a filename of VMware's `.vmdk`.  
+
+# Rename a filename of VMware's `.vmdk`.  
 ```powershell
 for($i=1; $i -lt 17; $i++){
 	$j = $i.ToString("00")
@@ -43,7 +44,7 @@ foreach($i in $strings)
 }
 ```
 
-#  pretty print for multiple csv files with grep
+# pretty print for multiple csv files with grep
 - normal grep  
 ```powershell
 PS > Select-String "SystemPerformanceMonitor" base*.csv
@@ -72,14 +73,6 @@ The drawback is that it's difficult to see the overall picture.
 I tried various things, but if simplicity and readability are important, this method seems to be the easiest.  
 Not so great with PowerShell.  
 
-# Malware Analysis
-## For Attacker
-```powershell
-PS > Add-MpPreference -ExclusionPath C:¥User¥user¥AppData¥Roaming¥Evil.exe
-```
-Excluding Defender's detection  
-[https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference?view=windowsserver2022-ps](https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference?view=windowsserver2022-ps)
-
 # ForEach-Object and %
 `0..3` is like range() of python.  
 `%` is the same as `ForEach-Object` function. 
@@ -95,3 +88,11 @@ PS > 0..3|%{echo 5}
 5
 5
 ```
+
+# Malware Analysis
+## For Attacker
+```powershell
+PS > Add-MpPreference -ExclusionPath C:¥User¥user¥AppData¥Roaming¥Evil.exe
+```
+Excluding Defender's detection  
+[https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference?view=windowsserver2022-ps](https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference?view=windowsserver2022-ps)
