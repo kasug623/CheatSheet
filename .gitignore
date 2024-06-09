@@ -12,6 +12,10 @@
 !CentOS/doc/*.png
 !CSS/README.md
 !Docker/README.md
+!ELK/README.md
+!ELK/Elasticsearch/QueryDSL/README.md
+!ELK/Kibana/README.md
+!ELK/Logstash/README.md
 !Shell/PenetrationTest/README.md
 
 # indivisual white list
