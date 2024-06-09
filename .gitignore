@@ -7,6 +7,25 @@
 
 # general white list
 !.gitignore
+!Brim/README.md
+!CentOS/README.md
+!CentOS/doc/*.png
+!CSS/README.md
+!Docker/README.md
+!ELK/README.md
+!ELK/Elasticsearch/QueryDSL/README.md
+!ELK/Kibana/README.md
+!ELK/Logstash/README.md
+!ESXi/README.md
+!Git/README.md
+!HTML/README.md
+!Markdown/README.md
+!PHP/README.md
+!Proxmox/README.md
+!Python/README.md
+!Python/Anaconda/README.md
+!Python/JupyterLab/README.md
+!Python/Virtualenv/README.md
 !Shell/PenetrationTest/README.md
 
 # indivisual white list

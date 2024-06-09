@@ -1,5 +1,5 @@
 # php全体のオプションを変更できる関数
-## @mail  で飛ばす先のSMTPサーバの変更
+## @mail で飛ばす先のSMTPサーバの変更
 ```
 // SMTP settings
 $smtp_sender = "bwapp@mailinator.com";

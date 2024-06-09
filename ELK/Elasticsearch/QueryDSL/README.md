@@ -203,7 +203,7 @@ GET blogs/_search
 }
 ```
 
-### type:textのfieldに対してkyewordとして検索 -> match_phrase
+### type:textのfieldに対してkeywordとして検索 -> match_phrase
 ```
 GET blogs/_search
 {
@@ -371,7 +371,7 @@ GET web_traffic/_search
 ```
 
 ## グループ化して唯一だったドキュメントを探す
-cardinalityを使う。
+cardinalityを使う。  
 [https://www.elastic.co/guide/en/elasticsearch/reference/8.4/search-aggregations-metrics-cardinality-aggregation.html](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/search-aggregations-metrics-cardinality-aggregation.html)
 ```
 GET blogs/_search
@@ -573,7 +573,7 @@ DELETE _async_search/<your_search_ID_here>
 
 # script
 スクリプト言語はpainless。  
-matchの部分をscriptと書く。
+matchの部分はscriptで書く。  
 [https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting-painless.html](https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting-painless.html)
 ```
 GET blogs/_search
@@ -1214,7 +1214,7 @@ POST blogs_fixed3/_update_by_query?pipeline=webtraffic_transform_pipeline&wait_f
 クエリの最適化のためのサマリテーブル作成用の仕組み。  
 どれくらいの頻度でサマリテーブルを更新するかは決められる。   
 作成と実行。Transformは基本GUIで準備する方が良さそう。  
-あとライセンスがないと実行できない機能っぽいので、トライアルが切れたらクエリでも使え無さそう。  
+あとライセンスがないと実行できない機能っぽいので、トライアルが切れたらクエリでも使えなくなりそう。  
 ```
 PUT _transform/traffic_stats
 {

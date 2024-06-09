@@ -1,13 +1,13 @@
-# font-family の使い方
-フォントを指定する。
-複数指定でき、適用できるものを前から選ぶ仕様。
+# How to Use `font-family`
+Specify the font.  
+You can specify multiple fonts, and the browser will apply the first available one.  
 ```
 .font1 {
-  font-family: serif, arial;　/* arialは英語フォント */
+  font-family: serif, arial; /* arial is an English font */
 }
 
 p {
-  font-family:優先度１のフォント,優先度2のフォント,優先度3のフォント;
+  font-family: PrimaryFont, SecondaryFont, TertiaryFont;
 }
 ```  
 [https://zero-plus.io/media/css-font-rule/](https://zero-plus.io/media/css-font-rule/)

@@ -1,24 +1,24 @@
-# jsonファイルをLogstashで取り込みたい
-
+# jsonファイルをLogstashで取り込む
 取り込みを試すときはsystemctl でやるよりも、
-binで.configを指定して実行した方がやりやすい。
+binで.configを指定して実行した方がやりやすい。  
 systemctlだといちいちjournalctlで見る必要があり、面倒。
 
-設定ファイルをちゃんと見れてないのか、
-設定内容がよくなくて、取り込み対象のファイルを無視しているのかがわかりにくい。詰まったときは大体後者。
+設定ファイルをちゃんと見れてないのか、  
+設定内容がよくなくて、取り込み対象のファイルを無視しているのかがわかりにくい。  
+詰まったときは大体後者。
 
-・binで実行するとき
-```
-sudo /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/hogehoge.conf
-```
+- binで実行するとき
+    ```
+    sudo /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/hogehoge.conf
+    ```
 
-・systemctlで実行する
-```
-systemctl start logstash.service
+- systemctlで実行する
+    ```
+    systemctl start logstash.service
 
-# logの確認
-journalctl -u logstash.service -xe -n 100
-```
+    # logの確認
+    journalctl -u logstash.service -xe -n 100
+    ```
 
 ## 複数レコードある.json
 ### 取り込める形
@@ -69,20 +69,19 @@ output {
     }
 ]
 ```
-
-#### 出力
+出力
 ```
 例）"message" : "}",
 　　"message" : """ "name":"toda",""",
 ```
 
-\nがあるため、取り込めない。
-一行ずつのレコードができる。
-それぞれのレコードのmessageに、一行ごとのこまごまになった値が入る。
+\nがあるため、取り込めない。  
+一行ずつのレコードができる。  
+それぞれのレコードのmessageに、一行ごとのこまごまになった値が入る。  
 
-取り込もうと思えばできるけど、単純な設定ではできないため、
-細かくパースする必要がある。
-入れる前にjqコマンドなどで一行の.jsonにした方が楽そう。
+取り込もうと思えばできるけど、単純な設定ではできないため、  
+細かくパースする必要がある。  
+入れる前にjqコマンドなどで一行の.jsonにした方が楽そう。  
 ```
 jq --compact-output
 ```
@@ -103,24 +102,21 @@ jq --compact-output
     "age":34
 }
 ```
-
 無理
-
 
 ## レコード一つだけの.json
 ### 取り込めない形1
 #### .json(改行 \n あり)
-
 ```
 {
     "name":"toda",
     "age":24
 }
 ```
-無理
+無理。
 
-このconfでもダメ
 #### .conf
+このconfでもダメ
 ```
 input {
     file {
@@ -142,10 +138,10 @@ output {
     }
 }
 ```
-
-#### 出力
+出力
+```
 例) "message" : """ "name":"tanaka",""",
-
+```
 
 ### 取り込めない形2
 #### .json(改行 \n あり)
@@ -157,8 +153,8 @@ output {
 ```
 無理
 
-このconfでもダメ
 #### .conf
+このconfでもダメ
 ```
 input {
     file {
@@ -215,7 +211,6 @@ output {
     }
 }
 ```
-
 出力
 ```
 {
@@ -282,8 +277,7 @@ output {
     }
 }
 ```
-
-#### 出力
+出力
 ```
 {
   "took" : 0,
