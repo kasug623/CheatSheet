@@ -1,5 +1,5 @@
 # .gitignoreのテンプレート
-github上に.gitignoreのテンプレートがある
+github上に.gitignoreのテンプレートがある。  
 [https://github.com/github/gitignore](https://github.com/github/gitignore)
 
 # ローカルブランチの削除
