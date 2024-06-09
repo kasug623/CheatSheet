@@ -3,7 +3,7 @@
 - [curl in dockerfile](#curl-in-dockerfile)
 - [docker compose](#docker-compose)
 - [TIPS](#tips)
-- [trouble shooting](#trouble-shooting)
+- [Trouble Shooting](#trouble-shooting)
 
 # meaning of `bullseye`, `buster`, `slim` on docker image
 In debian image, there are some code name by each version.  
@@ -60,8 +60,6 @@ stdin_open: true
 ```
 [https://qiita.com/yuki_0920/items/dc3f32667d004979cc5a](https://qiita.com/yuki_0920/items/dc3f32667d004979cc5a)
 
-
-
 # TIPS
 ## how to run several programs on "docker start"
 create `startup.sh` and call several shell or programs in the shell.  
@@ -103,11 +101,11 @@ http://${hoge} -> empty
 ```
 This is caused by the timing around environmental variables.  
 
-# trouble shooting
+# Trouble Shooting
 ## suddenly error at starting
 reboot your PC then may be soleved.  
 
-## static IP bug
+## Static IP bug
 A setting for static IP did not work.  
 This is caused by the version of docker compose.  
 There is a diffference between `docker compose` and `docker-compose` aroud setting static IP.  
