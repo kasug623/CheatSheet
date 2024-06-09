@@ -1,4 +1,4 @@
-# インストール
+# install
 ```
 $ install image
 	Enter Enter ...

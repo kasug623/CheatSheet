@@ -1,3 +1,6 @@
+# TOC
+- [UniTask, UniRx](#unitask-unirx)
+
 # URP, shaderGraph, DrawMeshInstancedIndirect
 ## How to handle "instancID" on shaderGraph
 A node of "instanceID" doesn't work.  
@@ -78,3 +81,18 @@ This can be used to render your own objects using Graphics.DrawMeshNow or other 
 # Random.insideUnitSphere 関数の動き
 半径 1 の球体の内部のランダムな点を返す（読み取り専用）
 [https://docs.unity3d.com/ja/2018.4/ScriptReference/Random-insideUnitSphere.html](https://docs.unity3d.com/ja/2018.4/ScriptReference/Random-insideUnitSphere.html)
+
+# UniTask, UniRx
+## how to intall on Windows
+1. install Git on Windows
+2. add git path to PATH
+3. add UniTask and UniRx URL to PackageManager
+
+
+# know-how
+## faced error : [Spawn]-[Laser] problem
+using compute shader and add new compute buffer to .compute with copy-and-paste,
+I forgot to change stuct type for the buffer.
+
+## VisualStudioを使ったデバック機能が機能しない
+起動したら治った。後そもそもスクリプトをアタッチしていなかった。	
