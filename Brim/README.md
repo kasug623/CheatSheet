@@ -1,22 +1,21 @@
-# Linux バージョン
-## Suricata の rule の場所
-suricata.rulesを置き換える際は、以下のパスの中のファイルを入れ替えれば良い。
+# Linux Version
+## Location of Suricata Rules
+When you want to update suricata rules, you can simply replace the file under this.
 ```
 /opt/Brim/resources/app.asar.unpacked/zdeps/suricata/var/lib/suricata/rules
 ```
-# Windows バージョン
-## Suricata の rule の場所
-suricata.rulesを置き換える際は、以下のパスの中のファイルを入れ替えれば良い。
+# Windows Version
+## Location of Suricata Rules
+When you want to update suricata rules, you can simply replace the file under this.
 ```
 C:\Users\user\AppData\Local\Programs\brim\resources\app.asar.unpacked\zdeps\suricata\var\lib\suricata\rules
 ```
 
 # query
-zqというスクリプト言語。jqの親戚みたいなものっぽい。  
+`zq` as script language is used.  
+This is similar to `jq` one.  
 [https://zed.brimdata.io/docs/commands/zq](https://zed.brimdata.io/docs/commands/zq)  
 [https://github.com/brimdata/zed/blob/v1.1.0/docs/language/overview.md](https://github.com/brimdata/zed/blob/v1.1.0/docs/language/overview.md)  
-
-## グルーピング
 ```
 count() by id
 ```
