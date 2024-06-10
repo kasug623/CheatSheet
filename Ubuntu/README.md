@@ -1,6 +1,3 @@
-# TOC
-
-
 # Ubuntu Server
 ## Ubuntu Server 22.04.4 LTS
 - Network
@@ -25,15 +22,16 @@
 
 # nmcli で設定する
 IP アドレス設定方式を静的（手動）にした上で IP アドレスを設定する場合
-コネクション名は大体 'Wired Connection 1' 。補完が効くはず・
+コネクション名は大体 'Wired Connection 1' 。 
+補完が効くはず。  
 ```
 nmcli c modify コネクション名 ipv4.method manual ipv4.addresses x.x.x.x/prefix
 ```
-IP アドレス設定のみ行う場合
+IP アドレス設定のみ行う場合  
 ```
 nmcli c modify コネクション名 ipv4.addresses x.x.x.x/prefix
 ```
-DHCP を利用するよう設定する場合
+DHCP を利用するよう設定する場合  
 ```
 nmcli c modify コネクション名 ipv4.method auto
 ```
@@ -43,13 +41,11 @@ nmcli c modify コネクション名 ipv4.method auto
 ```
 ssh-keygen -t rsa -b 4096 -c "#8"
 ```
-![参考コンソール画像](/Ubuntu/doc/ssh-keygen.png) 
 
 ## ssh-copy-id
 ```
 ssh-copy-id root@XXX.XXX.XXX.XXX
 ```
-![参考コンソール画像](/Ubuntu/doc/ssh-copy-id.png)
 
 # Desktop
 ## 解像度の変更
@@ -69,13 +65,13 @@ set-display-scale 1.0
 # Server
 ## 解像度の変更
 難しい。  
-sshで別のターミナル上で調整するのが良い。
-一応grubで変更はできるが、OSがサポートしてる改造までしか上げられず、最近の大型ディスプレイには適さないことがある。
+sshで別のターミナル上で調整するのが良い。  
+一応grubで変更はできるが、OSがサポートしてる改造までしか上げられず、最近の大型ディスプレイには適さないことがある。  
 
 ## キーボードの言語設定
 localctlでにsetxkbmapでも変更できなかった。  
-そもそもOSの中にJapの設定ファイルがないだけかもしれないが。
-諦めてsshして別ターミナルで入る方が良さそう。
+そもそもOSの中にJapの設定ファイルがないだけかもしれないが。  
+諦めてsshして別ターミナルで入る方が良さそう。  
 
 # VMware(ホスト型)の仮想マシンでDHCPのIPアドレスが割り当てられないとき
 ```

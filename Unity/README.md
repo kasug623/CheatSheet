@@ -1,5 +1,6 @@
 # TOC
 - [UniTask, UniRx](#unitask-unirx)
+- [know-how](#know-how)
 
 # URP, shaderGraph, DrawMeshInstancedIndirect
 ## How to handle "instancID" on shaderGraph
@@ -12,7 +13,7 @@ https://answers.unity.com/questions/1877154/urp-shader-graphs-with-instanced-ind
 
 
 # Unity MacOS error: Drawing with MeshTopology.Points, yet the vertex program 'Hidden/OpaqueSelection' does not have PSIZE output.
-Those warning messages are caused by the Scene View. It doesn't affect the quality of rendering. Please ignore them.
+Those warning messages are caused by the Scene View. It doesn't affect the quality of rendering. Please ignore them.  
 [https://github.com/keijiro/Pcx/issues/71](https://github.com/keijiro/Pcx/issues/71)  
 
 # region
@@ -49,7 +50,10 @@ float4	_Time; //時間 (t/20、t、t×2、t×3)、シェーダの中でアニメ
 
 #endif
 ```
-二重インクルードの防止。EXAMPLE_INCLUDEDが存在すれば、IF文発動でスキップなければ、DEFINEで定義されて、以下のコードが実行。次回からはDEFINE済みなのでIF文発動でスキップ。よって一回だけインクルードができる。
+二重インクルードの防止。  
+EXAMPLE_INCLUDEDが存在すれば、IF文発動でスキップなければDEFINEで定義されて以下のコードが実行。  
+次回からはDEFINE済みなのでIF文発動でスキップ。  
+よって一回だけのインクルードが実現できる。  
 [https://light11.hatenadiary.com/entry/2019/01/09/233507](https://light11.hatenadiary.com/entry/2019/01/09/233507)  
 [https://www.kinjo-u.ac.jp/ushida/tekkotsu/cpp/ifndef.html](https://www.kinjo-u.ac.jp/ushida/tekkotsu/cpp/ifndef.html) 
 
@@ -70,7 +74,7 @@ Material material = new Material(Shader.Find("Transparent/Diffuse"));
 [https://docs.unity3d.com/ja/2018.4/Manual/SL-ShaderCompileTargets.html](https://docs.unity3d.com/ja/2018.4/Manual/SL-ShaderCompileTargets.html)
 
 # Macでは、ジオメトリシェーダーとテッセレーションシェーダーは使えない
-Apple が OS X デスクトップ上の OpenGL バージョン を最大で 4.1 までと制限したため、すべての DirectX 11 機能 (Unordered Access Views や コンピュートシェーダーなど) に対応しているわけではありません。つまり、シェーダーレベル 5.0 ( #pragma target 5.0を伴う) に対応するように設定しているすべてのシェーダーは OS X でロードできない
+Apple が OS X デスクトップ上の OpenGL バージョン を最大で 4.1 までと制限したため、すべての DirectX 11 機能 (Unordered Access Views や コンピュートシェーダーなど) に対応しているわけではない。つまり、シェーダーレベル 5.0 ( #pragma target 5.0を伴う) に対応するように設定しているすべてのシェーダーは OS X でロードできない。
 [https://docs.unity3d.com/ja/2018.4/Manual/OpenGLCoreDetails.html](https://docs.unity3d.com/ja/2018.4/Manual/OpenGLCoreDetails.html)
 
 # OnRenderObject() は予約済み関数
@@ -95,4 +99,5 @@ using compute shader and add new compute buffer to .compute with copy-and-paste,
 I forgot to change stuct type for the buffer.
 
 ## VisualStudioを使ったデバック機能が機能しない
-起動したら治った。後そもそもスクリプトをアタッチしていなかった。	
+起動したら治った。  
+あと、そもそもスクリプトをアタッチしていなかった。	

@@ -1,19 +1,5 @@
-# File Ssharing between Windows and Mac on the same network 
+# File Sharing between Windows and Mac on the same network 
 [https://usedoor.jp/howto/digital/pc/windows10-mac-file-folder-kyouyuu/](https://usedoor.jp/howto/digital/pc/windows10-mac-file-folder-kyouyuu/)
-
-# cmd.exe
-64bit-cmd.exe
-```
-C:¥Windows¥System32¥cmd.exe
-```
-32bit-cmd.exe
-```
-C:¥Windows¥Syswow64¥cmd.exe
-```
-call 64bit-cmd.exe from 32bit-cmd.exe
-```
-C:¥Windows¥sysnative¥cmd.exe
-```
 
 # Hidden Path
 - Progra~1
