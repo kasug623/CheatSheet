@@ -131,8 +131,9 @@ tag: Misc
 
 # xfreerdp
 tag: RDP
-```
+```zsh
 $ xfreerdp /v:XXX.XXX.XXX.XXX /u:TestUser /p:TestPassword /dynamic-resolution +clipboard
+$ xfreerdp /v:XXX.XXX.XXX.XXX /d:hoge.com /u:TestUser /p:TestPassword /dynamic-resolution
 ```
 `/dynamic-resolution` option may not work well.
 
