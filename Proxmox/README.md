@@ -10,8 +10,11 @@
 - [Desktop Experience](https://ameblo.jp/mizuhokuzuhara/entry-12536887629.html)
 
 # Trouble Shooting
-- when host name is changed  
-    - don't forget to modify /etc/hosts
-    - https://qiita.com/honahuku/items/7335158659cfb1b4580f
-    
+## when host name is changed  
+- don't forget to modify /etc/hosts
+- https://qiita.com/honahuku/items/7335158659cfb1b4580f
+## when you cannot access web console  
+The IP with CIDR on this red line means "web console IP".  
+When you change this, you might have to change it back from a console on host.  
+![png](https://i.imgur.com/CMknoVV.png)
 
