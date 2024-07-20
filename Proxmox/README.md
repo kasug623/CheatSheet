@@ -8,6 +8,10 @@
 - [Must prepare VirtIO drivers 2](https://subro.mokuren.ne.jp/1872.html)
 - [Window 11 no network problem](https://www.intel.co.jp/content/www/jp/ja/support/articles/000092599/intel-nuc.html)
 - [Desktop Experience](https://ameblo.jp/mizuhokuzuhara/entry-12536887629.html)
+- [No NIC after VM is created](https://zenn.dev/northeggman/articles/49c6b73c03c81c#virtio%E3%83%89%E3%83%A9%E3%82%A4%E3%83%90%E3%83%BC%E3%81%AEiso%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89)
+    ```
+    D drive(virtio-win-0.1.215) > NetKVM> w11 > amd64
+    ```
 
 # Trouble Shooting
 ## when host name is changed  
