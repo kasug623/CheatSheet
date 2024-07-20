@@ -24,7 +24,9 @@ show config
 
 ```
 vyos@vyos:~$ configure
-vyos@vyos#　← 設定モードの表記
+vyos@vyos# commit
+vyos@vyos# save
+vyos@vyos# exit
 ```
 
 ```
@@ -38,11 +40,19 @@ vyos@vyos# set interfaces ethernet eth0 description Client
 vyos@vyos# set interfaces ethernet eth1 address ZZZ.ZZZ.ZZZ.ZZZ/24
 vyos@vyos# set interfaces ethernet eth1 description Server
 ```
+# NAT
+```zsh
+# https://docs.vyos.io/en/latest/configuration/nat/nat44.html
+vyos@vyos# set nat source rule 1 outbound-interface name 'eth0'
+vyos@vyos# set nat source rule 1 source address '172.17.0.0/24'
+vyos@vyos# set nat source rule 1 translation address 'masquerade'
+```
 
-# FWの設定
+# FW
 とりあえずガバガバにしとく。
 
 ## FWのポリシーを作る
+This didn't work at Version 15.
 ```
 set firewall name public-private default-action accept
 set firewall name private-public default-action accept
@@ -50,6 +60,6 @@ set firewall name private-public default-action accept
 
 ## FWのポリシーをインターフェースに割り当てる
 ```
-set interfaces ethrnet eth0 firewall int name public-private
-set interfaces ethrnet eth1 firewall int name private-public
+set interfaces ethernet eth0 firewall int name public-private
+set interfaces ethernet eth1 firewall int name private-public
 ```
