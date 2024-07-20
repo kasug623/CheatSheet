@@ -1,6 +1,13 @@
 # TOC
 - [the way to use "%"](#foreach-object-and)
 
+# Setting
+```powershell
+# network
+PS> New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress 172.16.0.5 -PrefixLength 24 -DefaultGateway 172.16.0.254
+PS Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ("8.8.8.8","8.8.4.4")
+```
+
 # Port Forwarding
 run with admin.  
 ```powershell
