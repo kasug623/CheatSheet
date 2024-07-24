@@ -154,6 +154,32 @@ elasticsearch.ssl.certificateAuthorities: ["/usr/share/elasticsearch/kibana/elas
 
 ## Test
 $ /usr/share/kibana/bin/kibana
+
+# Fleet
+## https://www.elastic.co/guide/en/fleet/8.14/install-fleet-managed-elastic-agent.html
+## https://www.elastic.co/guide/en/fleet/8.14/secure-connections.html
+
+## .p12 cannot be used. So convert it to .crt and .key
+$ openssl pkcs12 -in /etc/elasticsearch/my-certs/elastic-stack-ca.p12 -out cert.crt -clcerts -nokeys
+$ openssl pkcs12 -in /etc/elasticsearch/my-certs/elastic-stack-ca.p12 -out private.key -nocerts -nodes
+
+$ ./bin/elasticsearch-certutil cert \
+  --name fleet-server \
+  --ca-cert /etc/elasticsearch/my-certs/ca-pem-format/cert.crt \
+  --ca-key /etc/elasticsearch/my-certs/ca-pem-format/private.key \
+  --dns localhost \
+  --ip XXX.XXX.XXX.XXX,YYY.YYY.YYY.YYY \
+  --pem
+
+$ sudo ./elastic-agent install \
+   --url=https://XXX.XXX.XXX.XXX:8220 \
+   --fleet-server-es=https://XXX.XXX.XXX.XXX:9200
+   --fleet-server-service-token=AAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDDDDD \
+   --fleet-server-policy=fleet-server-policy \
+   --certificate-authorities=/etc/elasticsearch/my-certs/ca-pem-format/cert.crt \
+   --fleet-server-es-ca=/etc/elasticsearch/my-certs/ca-pem-format/cert.crt \
+   --fleet-server-cert=/usr/share/elasticsearch/fleet-server/fleet-server.crt \
+   --fleet-server-cert-key=/usr/share/elasticsearch/fleet-server/fleet-server.key
 ```
 
 # Ref

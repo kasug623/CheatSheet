@@ -5,7 +5,55 @@
 ```powershell
 # network
 PS> New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress 172.16.0.5 -PrefixLength 24 -DefaultGateway 172.16.0.254
-PS Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ("8.8.8.8","8.8.4.4")
+PS> Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ("8.8.8.8","8.8.4.4")
+# check
+PS> Get-NetAdapter
+PS> Get-NetIPAddress
+PS> Get-NetRoute
+# remove
+PS> Remove-NetIPAddress -InterfaceAlias "Ethernet"
+PS> Remove-NetRoute -InterfaceAlias "Ethernet"
+```
+
+# create Domain Env
+```powershell
+PS> $userOU = "OU=Users,DC=hoge,DC=net"
+
+# Create the new user
+PS> New-ADUser `
+    -GivenName $userFirstName `
+    -Surname $userLastName `
+    -Name "$userFirstName $userLastName" `
+    -SamAccountName $userSamAccountName `
+    -UserPrincipalName "$userSamAccountName@hoge.net" `
+    -Path $userOU `
+    -AccountPassword $userPassword `
+    -Enabled $true `
+    -PasswordNeverExpires $false `
+    -ChangePasswordAtLogon $true
+
+# Optionally, add the user to groups
+PS> Add-ADGroupMember -Identity "Domain Users" -Members $userSamAccountName
+
+# Client
+PS> $DomainController = "XXX.XXX.XXX.XXX"
+PS> Test-Connection -ComputerName $DomainController -Count 4
+
+PS> Get-NetAdapter
+$NetworkAdapter = Get-NetAdapter | Where-Object {$_.Status -eq "Up"}
+
+## DNS
+PS> Get-NetAdapter | Select-Object {$_.InterfaceAlias}
+PS> Set-DnsClientServerAddress -ServerAddresses $DomainController -InterfaceAlias "Ethernet"
+
+## join computer to domain
+PS> $user='Administrator'
+PS> $pw='C~'
+PS> $sec=ConvertTo-SecureString $pw -AsPlainText -Force
+PS> $cred=New-Object System.Management.Automation.PSCredential $user, $sec
+PS> Add-Computer -Credential $cred -OUPath 'OU="IT Management",DC=hoge,DC=net'
+> DomainName: hoge.net
+PS> Restart-Computer
 ```
 
 # Port Forwarding
