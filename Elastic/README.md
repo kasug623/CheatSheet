@@ -1,9 +1,11 @@
 # Setup
 ## 8.14 with VM
-point
-- don't trust auto-config
-- configure and check step by step
-- when you get an error, suspect permissions at first
+### point  
+- don't trust auto-config  
+- configure and check step by step  
+- when you get an error, suspect permissions at first  
+
+### Elasticsearch & Kibana  
 ```zsh
 # Download and install the Debian package manually
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
@@ -154,12 +156,15 @@ elasticsearch.ssl.certificateAuthorities: ["/usr/share/elasticsearch/kibana/elas
 
 ## Test
 $ /usr/share/kibana/bin/kibana
+```
 
-# Fleet
-## https://www.elastic.co/guide/en/fleet/8.14/install-fleet-managed-elastic-agent.html
-## https://www.elastic.co/guide/en/fleet/8.14/secure-connections.html
-
-## .p12 cannot be used. So convert it to .crt and .key
+### Fleet
+- https://www.elastic.co/guide/en/fleet/8.14/install-fleet-managed-elastic-agent.html
+- https://www.elastic.co/guide/en/fleet/8.14/secure-connections.html
+```zsh
+# .p12 cannot be used. So convert it to .crt and .key
+$ mkdir /etc/elasticsearch/my-certs/ca-pem-format
+$ cd /etc/elasticsearch/my-certs/ca-pem-format
 $ openssl pkcs12 -in /etc/elasticsearch/my-certs/elastic-stack-ca.p12 -out cert.crt -clcerts -nokeys
 $ openssl pkcs12 -in /etc/elasticsearch/my-certs/elastic-stack-ca.p12 -out private.key -nocerts -nodes
 
@@ -171,6 +176,11 @@ $ ./bin/elasticsearch-certutil cert \
   --ip XXX.XXX.XXX.XXX,YYY.YYY.YYY.YYY \
   --pem
 
+# check fingerprint
+$ openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/my-certs/ca-pem-format/cert.crt | sed 's/://g'
+```
+![png](https://i.imgur.com/JfUCzZL.png)
+```zsh
 $ sudo ./elastic-agent install \
    --url=https://XXX.XXX.XXX.XXX:8220 \
    --fleet-server-es=https://XXX.XXX.XXX.XXX:9200
@@ -179,7 +189,17 @@ $ sudo ./elastic-agent install \
    --certificate-authorities=/etc/elasticsearch/my-certs/ca-pem-format/cert.crt \
    --fleet-server-es-ca=/etc/elasticsearch/my-certs/ca-pem-format/cert.crt \
    --fleet-server-cert=/usr/share/elasticsearch/fleet-server/fleet-server.crt \
-   --fleet-server-cert-key=/usr/share/elasticsearch/fleet-server/fleet-server.key
+   --fleet-server-cert-key=/usr/share/elasticsearch/fleet-server/fleet-server.key \
+   --fleet-server-port=8220 \
+   --insecure
+```
+### Windows / Windows Server
+```powershell
+# agent install
+PS> .\elastic-agent.exe install --url=https://172.17.0.30:8220 --enrollment-token=EEEEEEEFFFFFFGGGGGGGG --insecure
+
+# check
+PS> & 'C:\Program Files\Elastic\Agent\elastic-agent.exe' status
 ```
 
 # Ref
