@@ -101,6 +101,10 @@ https://www.pathname.com/fhs/
 https://github.com/Orange-Cyberdefense/GOAD
 
 ---
+# Memo
+![png](https://imgur.com/JSxaYVX.png)  
+
+---
 
 # OSINT
 - https://haveibeenpwned.com/
