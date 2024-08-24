@@ -11,6 +11,7 @@
 !CentOS/README.md
 !CentOS/doc/*.png
 !CSS/README.md
+!Debian/README.md
 !Docker/README.md
 !Elastic/README.md
 !Elastic/Elasticsearch/QueryDSL/README.md
