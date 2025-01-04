@@ -4,6 +4,7 @@
     ```zsh
     $ sudo vi /etc/netplan/99_config.yaml
     ```
+    deprecated version
     ```yaml
     network:
         ethernets:
@@ -16,6 +17,22 @@
                     addresses:
                         - 8.8.8.8
                         - 8.8.4.4
+    ```
+    new version
+    ```yaml
+    network:
+    ethernets:
+        ens18:
+            dhcp4: false
+            dhcp6: false
+            addresses: [192.168.0.XXX/24]
+            routes:
+                - to: default
+                  via: 192.168.0.1
+            nameservers:
+                addresses:
+                    - 8.8.8.8
+                    - 8.8.4.4
     ```
     ```zsh
     $ sudo chmod 600 /etc/netplan/99_config.yaml
