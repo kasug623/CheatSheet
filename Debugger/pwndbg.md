@@ -41,6 +41,14 @@ $7 = 0x3
 pwndbg> print $rbp - 8
 $8 = (void *) 0x7fffffffdb78
 
+pwndbg> info register
+pwndbg> info register eax
+
+# Disassemble around the EIP, 10 instructions before and after.
+pwndbg> nearpc 10
+
+pwndbg> set $edx=0x585f
+
 pwndbg> cyclic 200
 aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaa
 pwndbg> cyclic --offset baaaaaaacaaaaaaadaa
