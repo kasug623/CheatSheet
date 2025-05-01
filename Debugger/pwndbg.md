@@ -8,6 +8,9 @@ $ gdb --args ./TestBinary -key abcd
 pwndbg> start
 pwndbg> run
 
+# Display the standard basic details.
+pwndbg> context
+
 pwndbg> b *0x080488a7
 pwndbg> info breakpoints
 
@@ -19,6 +22,13 @@ pwndbg> x 0x7fffffffdb78
 pwndbg> x/s 0x7fffffffdb78
 0x7fffffffdb78: "iaaaaaabjaaaaaabkaaaaaablaaaaaabmaaa"
 pwndbg> x/32gx 0x602000
+
+# Display Stack
+## Basic nice command
+pwndbg> stack
+pwndbg> telescope
+## Display a well-formatted view of the stack, capable of displaying the memory below $ESP
+pwndbg> telescope $esp-0x10
 
 pwndbg> p/d 0x6034a0 - 0x602088
 $1 = 5144
