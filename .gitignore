@@ -27,12 +27,12 @@
 !PHP/README.md
 !Proxmox/README.md
 !Python/README.md
+!Python/pwntools.md
+!Python/pwninit.md
+!Python/ROPgadget.md
 !Python/Anaconda/README.md
 !Python/JupyterLab/README.md
 !Python/Virtualenv/README.md
-!Python/Virtualenv/pwntools.md
-!Python/Virtualenv/pwninit.md
-!Python/Virtualenv/ROPgadget.md
 !Shell/PenetrationTest/README.md
 !Vim/README.md
 !Volatility/README.md
