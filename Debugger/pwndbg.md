@@ -79,4 +79,8 @@ pwndbg> tcache
 pwndbg> bins
 
 pwndbg> hexdump $eax
+
+## Display a specific address
+### arguments
+pwndbg> p &__libc_argv[0]
 ```
