@@ -1,3 +1,0 @@
-```
-$ date -u -d @XXXXXXXXXX
-```
