@@ -20,12 +20,14 @@
 !Elastic/Kibana/README.md
 !Elastic/Logstash/README.md
 !ESXi/README.md
+!Forensics/NetworkForensics
 !Git/README.md
 !HTML/README.md
 !Kali/README.md
 !Markdown/README.md
 !PHP/README.md
 !Proxmox/README.md
+!Python/re.md
 !Python/README.md
 !Python/pwntools.md
 !Python/pwninit.md
@@ -34,6 +36,7 @@
 !Python/JupyterLab/README.md
 !Python/Virtualenv/README.md
 !Shell/PenetrationTest/README.md
+!Shell/dd.md
 !Vim/README.md
 !Volatility/README.md
 !Ubuntu/README.md
