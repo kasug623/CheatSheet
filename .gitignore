@@ -7,6 +7,9 @@
 
 # general white list
 !.gitignore
+!README.md
+!Purpose/Blue/LiveResponse/Windows-powershell.md
+
 !Brim/README.md
 !CentOS/README.md
 !CentOS/doc/*.png
@@ -20,7 +23,7 @@
 !Elastic/Kibana/README.md
 !Elastic/Logstash/README.md
 !ESXi/README.md
-!Forensics/NetworkForensics
+!Forensics/NetworkForensics/*
 !Git/README.md
 !HTML/README.md
 !Kali/README.md
