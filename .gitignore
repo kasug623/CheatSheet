@@ -12,6 +12,8 @@
 !Purpose/Blue/Hardening/Windows.md
 !Purpose/Red/PenTest/Windows-powershell.md
 !Purpose/Red/PenTest/Linux-shell.md
+!Purpose/Forensics/*.md
+!Purpose/Forensics/Disk-Analysis/*.md
 !Purpose/Malware-Analysis/Debugger/*.md
 !Purpose/Malware-Analysis/Disassembler/*.md
 !OS/*.md
