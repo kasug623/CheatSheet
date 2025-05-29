@@ -9,7 +9,10 @@
 !.gitignore
 !README.md
 !Purpose/Blue/LiveResponse/Windows-powershell.md
-!Tools/DocRecrypt.md
+!Purpose/Blue/Hardening/Windows.md
+!Purpose/Red/PenTest/Windows-powershell.md
+!Purpose/Red/PenTest/Linux-shell.md
+!Tools/*.md
 
 !Brim/README.md
 !CentOS/README.md

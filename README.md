@@ -12,14 +12,14 @@ This section defines the tag prefixes and examples used to organize your securit
 
 | Category             | Prefix      | Example Tags                                            | Notes                              |
 |----------------------|-------------|---------------------------------------------------------|-------------------------------------|
-| OS                   | `os:`       | `os:windows`, `os:linux`, `os:macos`                   | General OS categories               |
-| Distribution         | `distro:`   | `distro:ubuntu`, `distro:centos`, `distro:debian`      | Specific Linux distributions        |
-| Programming Language | `lang:`     | `lang:python`, `lang:shell`, `lang:powershell`         | Includes scripting and shell types |
-| Team Role            | `team:`     | `team:blue`, `team:red`                                | Role-based categorization           |
-| Activity Type        | `type:`     | `type:forensics`, `type:pentest`, `type:malware-analysis` | Field or activity                   |
-| Task Type            | `task:`     | `task:scan`, `task:triage`, `task:reverse`             | Specific operations/tasks           |
-| Technical Area       | `tech:`     | `tech:memory`, `tech:network`, `tech:log`, `tech:pe`   | Domain-specific technical focus     |
-| Tool                 | `tool:`     | `tool:volatility`, `tool:nmap`, `tool:procmon`         | Tool-based classification           |
+| OS                   | `os/`       | `os/windows`, `os/linux`, `os/macos`                   | General OS categories               |
+| Distribution         | `distro/`   | `distro/ubuntu`, `distro/centos`, `distro/debian`      | Specific Linux distributions        |
+| Programming Language | `lang/`     | `lang/python`, `lang/shell`, `lang/powershell`         | Includes scripting and shell types |
+| Team Role            | `team/`     | `team/blue`, `team/red`                                | Role-based categorization           |
+| Activity Type        | `type/`     | `type/forensics`, `type/pentest`, `type/malware-analysis` | Field or activity                   |
+| Task Type            | `task/`     | `task/scan`, `task/triage`, `task/reverse`             | Specific operations/tasks           |
+| Technical Area       | `tech/`     | `tech/memory`, `tech/network`, `tech/log`, `tech/pe`   | Domain-specific technical focus     |
+| Tool                 | `tool/`     | `tool/volatility`, `tool/nmap`, `tool/procmon`         | Tool-based classification           |
 
 
 # Folder Structure Guide for Security Knowledge Base
