@@ -14,6 +14,7 @@
 !Purpose/Red/PenTest/Linux-shell.md
 !Purpose/Forensics/*.md
 !Purpose/Forensics/Disk-Analysis/*.md
+!Purpose/Malware-Analysis/*.md
 !Purpose/Malware-Analysis/Debugger/*.md
 !Purpose/Malware-Analysis/Disassembler/*.md
 !OS/*.md
@@ -21,6 +22,7 @@
 !Tools/*.md
 !Tools/Elastic/*.md
 !Tools/Python/*.md
+!Tools/Shell/*.md
 !Common/*.md
 
 !Brim/README.md
