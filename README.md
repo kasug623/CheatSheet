@@ -43,7 +43,7 @@ CheatSheet/
 │   │   │       ├── API.md
 │   │   │       └── Config.md
 │   │   └── Monitoring/
-│   ├── Forensic/
+│   ├── Forensics/
 │   │   ├── Memory-Analysis/
 │   │   ├── Disk-Analysis/
 │   │   └── Timeline-Analysis/

@@ -1,3 +1,5 @@
+#team/blue #os/windows
+
 # TOC<!-- omit in toc -->
 - [Network](#network)
 

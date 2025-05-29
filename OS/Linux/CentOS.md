@@ -1,24 +1,51 @@
 # Keyboard Settings
 ## Changing a US Keyboard to a Japanese Keyboard
 When using a GUI, you need to change the keyboard settings of the virtual emulated terminal.  
-### localectl does not work
-```
+### `localectl` does not work
+```zsh
+$ localectl
+System Locale: LANG=en_US.UTTF-8
+    VC Keymap: us
+   X11 Layout: us
+$
 $ localectl set-keymap jp106
+$
+$ localectl
+System Locale: LANG=en_US.UTTF-8
+    VC Keymap: jp106
+   X11 Layout: jp
+    X11 Model: jp106
+  X11 Options: terminate: ctrl_alt_bksp
 ```
-![image](/CentOS/doc/localectl.png)
-
 ### Change with `setxkbmap`
-```
+```zsh
 $ setxkbmap -layout jp
 ## or
 $ setxkbmap jp -model jp106
 ```
-![image](/CentOS/doc/setxkbmap1.png)
-
+```zsh
+$ setxkbmap -print
+xkb_keymap {
+    xkb_keycodes    { include "evdev+aliases(qwery)" };
+    xkb_types       { include "complete"} :
+    xkb_compat      { include "complete+japan" };
+    xkb_symbols     { include "pc+jp+inet(evdev)+terminate(ctrl_alt_bksp)" };
+    xkb_geometry    { include "pc(pc104)" };
+};
+```
 If you perform shutdown or reboot, it will revert to the original settings, so if you want to make it permanent, add it to .bashrc or similar.
-![image](/CentOS/doc/setxkbmap2.png)
-![image](/CentOS/doc/setxkbmap3.png)
-
+```zsh
+$ echo $SHELL
+/bin/bash
+$
+$ ls -la ~/ | grep "bash"
+.bash_history
+.bash_logout
+.bash_profile
+.bashrc
+$
+$ vim ~/.bashrc
+```
 # Changing Folder Names from Japanese to English in the GUI
 ```
 LANG=C xdg-user-dirs-gtk-update
