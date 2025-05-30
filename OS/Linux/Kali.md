@@ -1,3 +1,8 @@
+#os/linux
+
+# TOC <!-- omit in toc -->
+- [Network](#network)
+
 # Network
 - kali-linux-2024.2-vmware-amd64
     ```zsh

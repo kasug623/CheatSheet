@@ -1,42 +1,43 @@
-# `&nbsp;` の意味
-## ノーブレークスペース
-要は半角スペース。  
-本来は「改行の禁止（＝当該空白部分での自動的な改行を防ぐ）」という機能を果たすものだそう。  
-英文などの場合、単語と単語の間は半角スペースで区切られるが、例えば会社名など複数単語でひとつながりのものを改行させずに表示したいときなどに使うもの。  
+# `&nbsp;`
+non-breaking space
+Basically, it's a space.
+Its original purpose is to prevent line breaks—that is, to stop the browser from automatically breaking the line at that space.
+In English text, words are typically separated by half-width spaces, but in cases like company names composed of multiple words, this is used to keep them together on the same line without breaking.
 ```
 <?php echo "&nbsp;&nbsp;" . $message; ?>
 ```
-[cf. 参考ブログ](https://www.asoblock.net/contents/nbsp)
+ref. https://www.asoblock.net/contents/nbsp
 
-# inputタグのinputmode
-スマホなどで、入力フォームにタッチした時に、強制的に出てくるキーボードの種類を指定できる。
+# "input" tag
+## "inputmode" option
+You can specify the type of on-screen keyboard that appears automatically when a user taps on an input form, such as on a smartphone.
 ```
 <input type="text" inputmode="text">
 
-// システムのキーボードを表示させない指定
+// To prevent the system keyboard from appearing
 <input type="text" inputmode="none">
 ```
-[https://developer.mozilla.org/ja/docs/Web/HTML/Global_attributes/inputmode](https://developer.mozilla.org/ja/docs/Web/HTML/Global_attributes/inputmode)
+ref. https://developer.mozilla.org/ja/docs/Web/HTML/Global_attributes/inputmode
 
-# inputタグのrequired
-入力必須を指定する
+## "required" option
+Specify that input is required.
 ```
 <input required type="text" name="yourname"> 
 ```
-[http://www.htmq.com/html5/input_required.shtml](http://www.htmq.com/html5/input_required.shtml)
+ref. http://www.htmq.com/html5/input_required.shtml
 
-# fieldsetタグ
-formタグで定義するフォームの入力項目をグループ化するためのタグ。  
-ただまとめたい時にも使う。  
-グループ化を行うことにより、グループの間をtabキーで簡単に移動することが可能になる。
+# "fieldset" tag
+A tag used to group "input" fields defined within a "form" tag.
+It can also be used simply for organizational purposes.
+By grouping "input" fields, it becomes easier to navigate between groups using the Tab key.
 ```
 <form method="post" action="sample.cgi">
   <fieldset>
-    <legend>データ1</legend>
-    <p>名前<input type="text" name="name1" size="10"></p>
-    <p>住所<input type="text" name="address1" size="30"></p>
+    <legend>Data 1</legend>
+    <p>name<input type="text" name="name1" size="10"></p>
+    <p>address<input type="text" name="address1" size="30"></p>
   </fieldset>
-  <input type="submit" value="送信">
+  <input type="submit" value="Push Here!">
 </form>
 ```
-[https://html-coding.co.jp/annex/dictionary/html/fieldset/](https://html-coding.co.jp/annex/dictionary/html/fieldset/)
+ref. https://html-coding.co.jp/annex/dictionary/html/fieldset/

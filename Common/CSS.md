@@ -10,4 +10,4 @@ p {
   font-family: PrimaryFont, SecondaryFont, TertiaryFont;
 }
 ```  
-[https://zero-plus.io/media/css-font-rule/](https://zero-plus.io/media/css-font-rule/)
+ref. [https://zero-plus.io/media/css-font-rule/](https://zero-plus.io/media/css-font-rule/)

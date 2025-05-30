@@ -1,3 +1,9 @@
+#os/linux
+
+# TOC <!-- omit in toc -->
+- [Debian 12](#debian-12)
+  - [/etc/apt/source.list](#etcaptsourcelist)
+
 # Debian 12
 ## /etc/apt/source.list
 https://gist.github.com/hakerdefo/5e1f51fa93ff37871b9ff738b05ba30f

@@ -1,3 +1,18 @@
+#os/linux
+
+# TOC <!-- omit in toc -->
+- [Network](#network)
+  - [Ubuntu Server 20.04 / 22.04.4 LTS](#ubuntu-server-2004--22044-lts)
+- ["ssh" configuration](#ssh-configuration)
+  - [ssh-keygen](#ssh-keygen)
+  - [ssh-copy-id](#ssh-copy-id)
+- [Desktop](#desktop)
+  - [Change of resolution](#change-of-resolution)
+- [Server](#server)
+  - [Change of resolution](#change-of-resolution-1)
+  - [Keyboard language settings](#keyboard-language-settings)
+- [When a DHCP IP address is not assigned in a VMware (host-based) virtual machine.](#when-a-dhcp-ip-address-is-not-assigned-in-a-vmware-host-based-virtual-machine)
+
 # Network
 ## Ubuntu Server 20.04 / 22.04.4 LTS
 - `netplan`
@@ -40,59 +55,59 @@
     $ ip a
     ```
 - `nmcli`  
-    IP アドレス設定方式を静的（手動）にした上で IP アドレスを設定する場合
-    コネクション名は大体 'Wired Connection 1' 。 
-    補完が効くはず。  
+    When setting the IP address with the configuration method set to static (manual),
+    the connection name is usually 'Wired Connection 1'.  
+    Autocomplete should work.
     ```
-    nmcli c modify コネクション名 ipv4.method manual ipv4.addresses x.x.x.x/prefix
+    $ nmcli c modify <connection name> ipv4.method manual ipv4.addresses x.x.x.x/prefix
     ```
-    IP アドレス設定のみ行う場合  
+    When setting only the IP address:  
     ```
-    nmcli c modify コネクション名 ipv4.addresses x.x.x.x/prefix
+    $ nmcli c modify <connection name> ipv4.addresses x.x.x.x/prefix
     ```
-    DHCP を利用するよう設定する場合  
+    When configuring to use DHCP:  
     ```
-    nmcli c modify コネクション名 ipv4.method auto
+    $ nmcli c modify <connection name> ipv4.method auto
     ```
 
-# ssh設定
+# "ssh" configuration
 ## ssh-keygen
 ```
-ssh-keygen -t rsa -b 4096 -c "#8"
+$ ssh-keygen -t rsa -b 4096 -c "#8"
 ```
 
 ## ssh-copy-id
 ```
-ssh-copy-id root@XXX.XXX.XXX.XXX
+$ ssh-copy-id root@XXX.XXX.XXX.XXX
 ```
 
 # Desktop
-## 解像度の変更
+## Change of resolution
 to make the GUI scale lager than normal
 ```
 set-display-scale 0.75
 ```
 to make the GUI scale smaller than normal
 ```
-set-display-scale 1.5
+$ set-display-scale 1.5
 ```
 to make the GUI scale to noramal
 ```
-set-display-scale 1.0
+$ set-display-scale 1.0
 ```
 
 # Server
-## 解像度の変更
-難しい。  
-sshで別のターミナル上で調整するのが良い。  
-一応grubで変更はできるが、OSがサポートしてる改造までしか上げられず、最近の大型ディスプレイには適さないことがある。  
+## Change of resolution
+It’s difficult.  
+Adjusting on another terminal via SSH is preferable.  
+You can change it with GRUB as a fallback, but it only supports modifications allowed by the OS, so it may not suit modern large displays.  
 
-## キーボードの言語設定
-localctlでにsetxkbmapでも変更できなかった。  
-そもそもOSの中にJapの設定ファイルがないだけかもしれないが。  
-諦めてsshして別ターミナルで入る方が良さそう。  
+## Keyboard language settings
+I couldn't change it using `localectl` or `setxkbmap`.  
+It might be because the OS simply doesn't have the Japanese configuration files.  
+It seems better to give up and access via SSH from another terminal.
 
-# VMware(ホスト型)の仮想マシンでDHCPのIPアドレスが割り当てられないとき
+# When a DHCP IP address is not assigned in a VMware (host-based) virtual machine.
 ```
-sudo dhclient
+$ sudo dhclient
 ```
