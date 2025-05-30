@@ -1,3 +1,15 @@
+#os/linux
+
+# TOC <!-- omit in toc -->
+- [Keyboard Settings](#keyboard-settings)
+  - [Changing a US Keyboard to a Japanese Keyboard](#changing-a-us-keyboard-to-a-japanese-keyboard)
+    - [`localectl` does not work](#localectl-does-not-work)
+    - [Change with `setxkbmap`](#change-with-setxkbmap)
+- [Changing Folder Names from Japanese to English in the GUI](#changing-folder-names-from-japanese-to-english-in-the-gui)
+- [Trouble Shooting](#trouble-shooting)
+  - [Update Error](#update-error)
+
+
 # Keyboard Settings
 ## Changing a US Keyboard to a Japanese Keyboard
 When using a GUI, you need to change the keyboard settings of the virtual emulated terminal.  
@@ -48,9 +60,9 @@ $ vim ~/.bashrc
 ```
 # Changing Folder Names from Japanese to English in the GUI
 ```
-LANG=C xdg-user-dirs-gtk-update
+$ LANG=C xdg-user-dirs-gtk-update
 ```
-[https://toshio-web.com/linux-home-rename?amp=1](https://toshio-web.com/linux-home-rename?amp=1)
+ref. https://toshio-web.com/linux-home-rename?amp=1
 
 # Trouble Shooting
 ## Update Error

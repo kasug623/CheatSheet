@@ -1,7 +1,11 @@
-# TOC
-- [sl](#sl)
-- [cmatrix](#cmatrix)
-- [nyancat](#nyancat)
+#tool/sl
+#tool/cmatrix
+#tool/nyancat
+
+# TOC <!-- omit in toc -->
+- [`sl`](#sl)
+- [`cmatrix`](#cmatrix)
+- [`nyancat`](#nyancat)
 
 # `sl`
 ```
