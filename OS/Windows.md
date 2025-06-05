@@ -224,6 +224,17 @@ PS > 0..3|%{echo 5}
 5
 ```
 
+# Powershell version `which` command
+```powershell
+PS> Get-Command whoami
+# OK
+PS> Get-Command whoami.exe
+# OK
+PS> where whoami
+# No output
+PS> where whoami.exe
+# No output
+```
 # Malware Analysis
 ## For Attacker
 ```powershell
