@@ -1,4 +1,4 @@
-#team/blue #os/windows
+#team/blue #os/windows #type/hardening
 
 # Vs. LLMNR/NBT-NS Poisoning and SMB Relay
 ##  disable LLMNR  
@@ -19,3 +19,13 @@ Share script from AD to domain joined computers
 ```
 \\test.local\SYSVOL\TEST.LOCAL\scripts
 ```
+
+# Vs. Keberoasting
+set a long and complex password or passphrase for service accounts
+- use Managed Service Accounts (MSA), and Group Managed Service Accounts (gMSA)
+Keberoasting generates an abnormal number of TGS-REQ and TGS-REP requests and responses
+- Audit logs for TGS-REQ and TGS-REP activity
+- Watch a flood of event IDs:4769 and 4770
+  - event IDs: 4769 ... A Kerberos service ticket was requested
+  - event IDs: 4770 ... A Kerberos service ticket was renewed
+- ref. an abnormal number of TGS-REQ and TGS-REP requests and responses
